@@ -247,9 +247,14 @@ class ExperimentResult(Base):
     plot_paths = Column(JSONB, default={})
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 ```
-6. Migration Notes
+
+---
+
+## 6. Migration Notes
 - Use Alembic to generate and apply migrations.
 - First migration creates these four tables and the custom enum types.
 - Seed data (built‑in dataset rows or CSV files) can be added via a data migration script.
 
-*This schema is the persistent foundation of the ML Playground. All API endpoints and background tasks depend on it.
+---
+
+*This schema is the persistent foundation of the ML Playground. All API endpoints and background tasks depend on it.*
