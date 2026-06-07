@@ -1,9 +1,9 @@
 # System Requirements Specification – ML Playground
 
-**Version:** 1.0
-**Date:** 2026-06-04
-**Author:** Mohammadhadi
-**Linked documents:** [Project Vision](goal.md) | [User Stories](user-stories.md) | [Architecture](architecture.md)
+**Version:** 1.0  
+**Date:** 2026-06-04  
+**Author:** Mohammadhadi  
+**Linked documents:** [Project Vision](goal.md) | [User Stories](user-stories.md) | [Architecture](architecture.md)  
 
 ---
 

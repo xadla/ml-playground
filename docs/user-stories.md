@@ -2,8 +2,8 @@
 
 **Version:** 1.0  
 **Date:** 2026-06-04  
-**Author:** Mohammadhadi 
-**Linked documents:** [Project Vision](goal.md) | [System Requirements](requirements.md)
+**Author:** Mohammadhadi  
+**Linked documents:** [Project Vision](goal.md) | [System Requirements](requirements.md)  
 
 ---
 
