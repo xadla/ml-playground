@@ -1,0 +1,39 @@
+# Dependencies
+node_modules
+npm-debug.log
+
+# Build output (generated)
+dist
+build
+.vite
+
+# Version control
+.git
+.gitignore
+
+# Environment files (secrets!)
+.env
+.env.local
+.env.*.local
+
+# Editor
+.vscode
+.idea
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Testing
+coverage
+.vitest
+
+# Documentation
+*.md
+!README.md
+
+# Docker files (don't copy themselves)
+Dockerfile
+.dockerignore
+docker-compose*.yml

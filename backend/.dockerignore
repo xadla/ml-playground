@@ -1,7 +1,55 @@
-__pycache__/
+# Python
+__pycache__
 *.pyc
-venv/
+*.pyo
+*.pyd
+.Python
+*.egg-info
+dist
+build
+*.egg
+
+# Virtual environments
+venv
+.venv
+env
 .env
+
+# IDE
+.vscode
+.idea
+*.swp
+
+# Testing
+.pytest_cache
+.coverage
+htmlcov
+test-results
+
+# Type checking
+.mypy_cache
+.dmypy.json
+
+# Linting
+.ruff_cache
+
+# Environment
+.env
+*.env
+
+# Version control
 .git
 .gitignore
+
+# Docker
+Dockerfile
+.dockerignore
+
+# Documentation
 *.md
+!README.md
+
+# ML artifacts (add as needed)
+*.pkl
+*.joblib
+models/

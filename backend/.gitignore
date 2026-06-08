@@ -1,69 +1,49 @@
 # ============================================
-# OS Files
+# Python
 # ============================================
-.DS_Store
-Thumbs.db
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+dist/
+build/
+*.egg
 
 # ============================================
-# IDE & Editor
+# Virtual Environment
 # ============================================
-.vscode/
-.idea/
-*.swp
-*.swo
-*~
+venv/
+.venv/
+env/
+.env/
 
 # ============================================
-# Environment & Secrets
+# Type Checking
 # ============================================
-.env
-.env.local
-.env.*.local
-*.env
+.mypy_cache/
+.dmypy.json
+dmypy.json
 
 # ============================================
-# Docker
+# Linting
 # ============================================
-docker-compose.override.yml
-.docker/
+.ruff_cache/
 
 # ============================================
-# Data & Volumes
+# Alembic (only if you have local DB)
 # ============================================
-data/
-volumes/
-*.db
-*.sqlite3
+alembic/versions/*.sql
+# But KEEP the __init__.py and template structure
 
 # ============================================
-# ML Artifacts
+# Testing
 # ============================================
-*.pkl
-*.joblib
-models/
-*.h5
-*.pb
-checkpoints/
-
-# ============================================
-# Logs
-# ============================================
-logs/
-*.log
-
-# ============================================
-# Coverage & Reports
-# ============================================
-htmlcov/
-.coverage
-.coverage.*
-coverage.xml
-*.cover
 .pytest_cache/
+test-results/
 
 # ============================================
-# Archives (accidental commits)
+# Specific Secrets
 # ============================================
-*.zip
-*.tar.gz
-*.rar
+*.pem
+*.key
+secrets/
