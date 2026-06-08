@@ -4,4 +4,4 @@ app = FastAPI(title="ML-Playground")
 
 @app.get("/")
 async def root():
-    return {"message": "Hello from ML-Playground backend!"}
+    return {"message": "Hello from ML-Playground backend!(This is a test message)"}

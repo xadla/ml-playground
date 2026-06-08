@@ -1,0 +1,93 @@
+services:
+  # ============================================
+  # Backend (FastAPI)
+  # ============================================
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: ml-backend
+    ports:
+      - "8000:8000"
+    volumes:
+      # Mount the app folder for hot reload (see note below)
+      - ./backend/app:/app/app
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@db:5432/mlplayground
+      - REDIS_URL=redis://redis:6379/0
+      - SECRET_KEY=dev-secret-change-in-production
+      - ENVIRONMENT=development
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    # Override CMD to enable auto-reload during development
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    networks:
+      - ml-network
+
+  # ============================================
+  # Frontend (Vite + React)
+  # ============================================
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: ml-frontend
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./frontend/src:/app/src       # Hot reload
+      - ./frontend/public:/app/public  # Static files
+      - ./frontend/index.html:/app/index.html
+    environment:
+      - VITE_API_URL=http://localhost:8000/api/v1
+      - NODE_ENV=development
+    depends_on:
+      - backend
+    networks:
+      - ml-network
+
+  # ============================================
+  # PostgreSQL
+  # ============================================
+  db:
+    image: postgres:16-alpine
+    container_name: ml-db
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: mlplayground
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - ml-network
+
+  # ============================================
+  # Redis
+  # ============================================
+  redis:
+    image: redis:7-alpine
+    container_name: ml-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - ml-network
+
+volumes:
+  postgres_data:
+  redis_data:
+
+networks:
+  ml-network:
+    driver: bridge
