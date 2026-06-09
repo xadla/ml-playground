@@ -10,7 +10,7 @@ services:
     ports:
       - "8000:8000"
     volumes:
-      # Mount the app folder for hot reload (see note below)
+      # Mount the app folder for hot reload
       - ./backend/app:/app/app
     environment:
       - DATABASE_URL=postgresql://postgres:postgres@db:5432/mlplayground
