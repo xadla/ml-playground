@@ -5,3 +5,4 @@ uvicorn[standard]==0.34.0
 ruff==0.10.0
 mypy==1.15.0
 pre-commit==4.0.0
+pytest==8.0.2
