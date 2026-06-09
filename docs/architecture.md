@@ -1,8 +1,8 @@
 # Architecture & Technical Overview – ML Playground
 
-**Version:** 1.0  
-**Date:** 2026-06-07  
-**Author:** Mohammadhadi  
+**Version:** 1.0
+**Date:** 2026-06-07
+**Author:** Mohammadhadi
 
 ---
 

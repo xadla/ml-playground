@@ -1,14 +1,14 @@
 # Deployment Plan – ML Playground
 
-**Version:** 1.0  
-**Date:** 2026-06-07  
-**Author:** Mohammadhadi  
+**Version:** 1.0
+**Date:** 2026-06-07
+**Author:** Mohammadhadi
 
 ---
 
 ## 1. Overview
 
-The ML Playground is deployed as a set of Docker containers behind an Nginx reverse proxy.  
+The ML Playground is deployed as a set of Docker containers behind an Nginx reverse proxy.
 The goal is **one‑command startup** locally (`docker-compose up`) and **automated zero‑downtime deployment** to a cloud VM or PaaS on every push to `main`.
 
 ### Target Environments

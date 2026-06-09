@@ -1,6 +1,6 @@
 # ML Playground – Documentation
 
-Welcome to the ML Playground documentation.  
+Welcome to the ML Playground documentation.
 This folder contains the complete design and specification of the project.
 
 ## Documents

@@ -1,8 +1,8 @@
 # Security – ML Playground
 
-**Version:** 1.0  
-**Date:** 2026-06-07  
-**Author:** Mohammadhadi  
+**Version:** 1.0
+**Date:** 2026-06-07
+**Author:** Mohammadhadi
 
 ---
 
@@ -152,7 +152,7 @@ Security is built into every layer of the ML Playground — not bolted on at the
 
 ## 8. Responsible Disclosure
 
-If you discover a security vulnerability in the ML Playground, please report it by opening a private issue or emailing `hadinjr4122@gmail.com`.  
+If you discover a security vulnerability in the ML Playground, please report it by opening a private issue or emailing `hadinjr4122@gmail.com`.
 I commit to acknowledging reports within 48 hours and providing a timeline for a fix.
 
 ---

@@ -2,6 +2,7 @@ from fastapi import FastAPI
 
 app = FastAPI(title="ML-Playground")
 
+
 @app.get("/")
-async def root():
+async def root() -> dict[str, str]:
     return {"message": "Hello from ML-Playground backend!(This is a test message)"}

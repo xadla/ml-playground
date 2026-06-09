@@ -1,8 +1,8 @@
 # Technology Stack – ML Playground
 
-**Version:** 1.0  
-**Date:** 2026-06-06  
-**Author:** Mohammadhadi  
+**Version:** 1.0
+**Date:** 2026-06-06
+**Author:** Mohammadhadi
 
 ---
 

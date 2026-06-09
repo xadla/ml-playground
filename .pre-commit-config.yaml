@@ -1,0 +1,55 @@
+repos:
+  # Python linting & formatting
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.10.0
+    hooks:
+      - id: ruff
+        name: ruff-lint-backend
+        args: [--fix, --exit-non-zero-on-fix]
+        files: ^backend/.*\.py$
+      - id: ruff-format
+        name: ruff-format-backend
+        files: ^backend/.*\.py$
+
+  # Python type checking
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.15.0
+    hooks:
+      - id: mypy
+        name: mypy-backend
+        additional_dependencies:
+          - pydantic
+          - fastapi
+          - uvicorn
+        args: [--strict]
+        files: ^backend/.*\.py$
+
+  # Frontend
+  - repo: local
+    hooks:
+      - id: eslint
+        name: eslint-frontend
+        args: [--fix]
+        entry: bash -c 'cd frontend && npm run lint'
+        language: system
+        files: ^frontend/.*\.(ts|tsx)$
+        pass_filenames: false
+
+      - id: frontend-format
+        name: Prettier
+        entry: bash -c 'cd frontend && npm run format'
+        language: system
+        files: ^frontend/.*\.(ts|tsx|css|json)$
+        pass_filenames: false
+
+  # General file checks
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-json
+      - id: check-added-large-files
+      - id: check-merge-conflict
+      - id: detect-private-key

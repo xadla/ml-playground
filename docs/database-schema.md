@@ -1,10 +1,10 @@
 # Database Schema – ML Playground
 
-**Version:** 1.0  
-**Date:** 2026-06-06  
-**Author:** Mohammadhadi  
-**Database:** PostgreSQL 16+  
-**ORM:** SQLAlchemy 2.0 (async) + Alembic for migrations  
+**Version:** 1.0
+**Date:** 2026-06-06
+**Author:** Mohammadhadi
+**Database:** PostgreSQL 16+
+**ORM:** SQLAlchemy 2.0 (async) + Alembic for migrations
 
 ---
 

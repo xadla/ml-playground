@@ -27,7 +27,7 @@
 
 ## Why this exists
 
-Beginners hit walls with setup and code‑first approaches.  
+Beginners hit walls with setup and code‑first approaches.
 **ML Playground** gives them a visual sandbox to:
 
 - 🎨 **Draw datasets** by clicking on a 2D canvas
@@ -114,7 +114,7 @@ Highly recommended reading for contributors and curious engineers:
 
 ## Architecture at a Glance
 ```text
-Browser → Nginx (TLS) → React (static) + FastAPI (api) 
+Browser → Nginx (TLS) → React (static) + FastAPI (api)
                        → Celery Worker (ML training)
                        → PostgreSQL (data) + Redis (queue)
 ```
@@ -139,7 +139,7 @@ This project is licensed under the MIT License – see `LICENSE` for details.
 
 ## Author
 
-Mohammadhadi  
+Mohammadhadi
 [GitHub]() • [LinkedIn]()
 
 <p align="center">Built with ❤️ and a lot of scikit‑learn</p>
