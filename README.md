@@ -11,6 +11,7 @@
   <a href="#key-features">Features</a> •
   <a href="#tech-stack">Tech Stack</a> •
   <a href="#quick-start">Quick Start</a> •
+  <a href="#development-setup">Dev Setup</a> •
   <a href="docs/">Documentation</a>
 </p>
 
@@ -19,6 +20,11 @@
   <img src="https://img.shields.io/badge/license-MIT-blue" alt="License"/>
   <img src="https://img.shields.io/badge/docs-complete-brightgreen" alt="Documentation"/>
   <img src="https://img.shields.io/badge/PRs-welcome-brightgreen" alt="PRs Welcome"/>
+  <img src="https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit" alt="pre-commit"/>
+  <img src="https://img.shields.io/badge/ruff-enabled-blue?logo=python" alt="Ruff"/>
+  <img src="https://img.shields.io/badge/mypy-strict-blue" alt="mypy"/>
+  <img src="https://img.shields.io/badge/ESLint-enabled-4B32C3?logo=eslint" alt="ESLint"/>
+  <img src="https://img.shields.io/badge/Prettier-enabled-F7B93E?logo=prettier" alt="Prettier"/>
 </p>
 
 ![Demo Screenshot](docs/wireframes/demo.gif)
@@ -50,6 +56,7 @@ Beginners hit walls with setup and code‑first approaches.
 - 🔒 **User accounts** – sign up, log in, save experiments, and compare past runs
 - 🐳 **One‑command startup** with Docker – zero‑dependency local development
 - 📚 **Fully documented** – from vision to deployment
+- ✅ **Professional code quality** – pre-commit hooks, Ruff, MyPy, ESLint, Prettier, GitHub Actions CI
 
 ---
 
@@ -64,6 +71,7 @@ Beginners hit walls with setup and code‑first approaches.
 | **Web Server** | Nginx (reverse proxy, TLS termination, static files) |
 | **Containerization** | Docker, docker‑compose |
 | **CI/CD** | GitHub Actions |
+| **Code Quality** | Ruff (lint+format), MyPy (type checking), pre‑commit, ESLint, Prettier |
 | **Cloud** | Railway / Render / AWS EC2 |
 
 ---
@@ -86,11 +94,73 @@ docker-compose up --build
 open http://localhost
 ```
 
-The app will be available at `http://localhost`.
+## Development Setup
 
-FastAPI auto‑generated docs: `http://localhost/api/docs`
+**Prerequisites**: Python 3.11+, Node.js 20+, Docker (optional for full stack)
 
----
+If you want to run the project **without Docker** (for faster iteration) or contribute code, follow this setup.
+
+### 1. Backend (FastAPI)
+
+```bash
+cd backend
+python -m venv .venv
+source .venv/bin/activate  # or `.venv\Scripts\activate` on Windows
+pip install -r requirements-dev.txt
+```
+
+### 2. Frontend (React + Vite)
+
+```bash
+cd frontend
+npm install
+```
+
+### 3. Code Quality Tools – mandatory before committing
+
+We use pre-commit to automatically run Ruff, MyPy, ESLint and Prettier on every commit.
+This ensures consistent style and catches bugs early.
+
+```bash
+# From the project root (ml-playground/)
+pip install pre-commit
+pre-commit install          # installs git hook scripts
+pre-commit run --all-files  # optional: run on all existing files
+```
+
+Now every git commit will automatically:
+
+- Lint & format Python with Ruff
+- Type‑check Python with MyPy (strict mode)
+- Lint TypeScript/React with ESLint
+- Format frontend code with Prettier
+- Validate YAML/JSON, trim whitespace, detect secrets, etc.
+
+> **Note**: If a hook fails, the commit is blocked. Fix the issues and try again.
+> You can run hooks manually: `pre-commit run --all-files`
+
+### 4. Running without Docker (for development)
+
+**Terminal 1 – Backend**
+```bash
+cd backend
+source .venv/bin/activate
+uvicorn app.main:app --reload --port 8000
+```
+
+**Terminal 2 – Celery worker** (for ML training)
+```bash
+cd backend
+celery -A app.tasks worker --loglevel=info
+```
+
+**Terminal 3 – Frontend**
+```bash
+cd frontend
+npm run dev
+```
+
+Now visit `http://localhost:5173`
 
 ## Documentation
 
@@ -99,7 +169,7 @@ All project documentation lives in the `docs/` folder.
 Highly recommended reading for contributors and curious engineers:
 
 | Document | Description |
-|---|---|
+|----------|-------------|
 | Project Vision | Why this project exists and for whom |
 | Requirements | Full functional & non‑functional specs |
 | User Stories | 27 stories with priorities and traceability |
@@ -113,33 +183,34 @@ Highly recommended reading for contributors and curious engineers:
 ---
 
 ## Architecture at a Glance
+
 ```text
 Browser → Nginx (TLS) → React (static) + FastAPI (api)
                        → Celery Worker (ML training)
                        → PostgreSQL (data) + Redis (queue)
 ```
 
-[Full architecture diagram and explanation →](/docs/architecture.md)
-
----
+[Full architecture diagram and explanation →](docs/architecture.md)
 
 ## Contributing
 
-Contributions are welcome!
+We welcome contributions – new algorithms, better visualizations, dataset features, performance improvements.
 
-See `CONTRIBUTING.md` for guidelines on adding new algorithms, visualizations, or improving the data canvas.
+### Before you start
 
----
+- Read the [project vision](docs/goal.md) and [requirements](docs/requirements.md)
+- Make sure you've set up **pre-commit** hooks (see [Development Setup](#development-setup))
+- Run `pre-commit run --all-files` to verify your environment works
 
-## License
+### Pull request checklist
 
-This project is licensed under the MIT License – see `LICENSE` for details.
+- [ ] Code is formatted – Ruff & Prettier will enforce this automatically
+- [ ] Type hints exist for all Python functions (MyPy in strict mode)
+- [ ] Frontend changes pass `npm run lint` and `npm run format`
+- [ ] No `console.log`, no commented‑out code
+- [ ] Update documentation if you change behaviour
 
----
+**GitHub Actions** will run the exact same checks on every pull request.
+If the CI fails, your PR cannot be merged.
 
-## Author
-
-Mohammadhadi
-[GitHub]() • [LinkedIn]()
-
-<p align="center">Built with ❤️ and a lot of scikit‑learn</p>
+See `CONTRIBUTING.md` for detailed guidelines.
