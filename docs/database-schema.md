@@ -20,6 +20,15 @@ erDiagram
         timestamp updated_at
     }
 
+    pending_registrations {
+        uuid id PK
+        string email UK
+        string hashed_password
+        string verification_token UK
+        timestamp created_at
+        timestamp expires_at
+    }
+
     datasets {
         uuid id PK
         uuid user_id FK "NULL if anonymous"
@@ -59,6 +68,7 @@ erDiagram
     users ||--o{ experiments : runs
     datasets ||--o{ experiments : used_in
     experiments ||--|| experiment_results : produces
+    %% No direct relationship between pending_registrations and users
 ```
 ## 2. Table Definitions
 
@@ -80,7 +90,32 @@ Stores registered user accounts. Passwords are hashed with bcrypt.
 
 ---
 
-### 2.2 `datasets`
+### 2.2 `pending_registrations`
+
+Stores temporary registration requests before email verification. When a user signs up, a record is created here. After they click the verification link, the record is moved to `users` and deleted from this table. Expired records are cleaned up automatically (e.g., by a Celery beat task or a cron job).
+
+| Column | Type | Constraints | Description |
+|--------|------|-------------|-------------|
+| `id` | `UUID` | `PRIMARY KEY DEFAULT gen_random_uuid()` | Unique identifier for the pending registration. |
+| `email` | `VARCHAR(255)` | `UNIQUE NOT NULL` | The email address to be verified. Case‑insensitive unique index. |
+| `hashed_password` | `VARCHAR(255)` | `NOT NULL` | bcrypt hash of the password (same format as in `users`). |
+| `verification_token` | `VARCHAR(255)` | `UNIQUE NOT NULL` | A random, unguessable token (UUID or secure URL‑safe string) sent in the verification email. |
+| `created_at` | `TIMESTAMPTZ` | `DEFAULT NOW()` | When the registration was initiated. |
+| `expires_at` | `TIMESTAMPTZ` | `NOT NULL` | Token expiration time (e.g., NOW() + interval '24 hours'). |
+
+**Indexes:**
+- `idx_pending_email` – unique index on `email` (lower‑case) to quickly check for existing pending registrations.
+- `idx_pending_token` – unique index on `verification_token` for fast lookup during verification.
+- `idx_pending_expires_at` – for cleanup jobs to remove expired rows.
+
+**Constraints:**
+`expires_at` must be greater than `created_at` (enforced by application logic; can also be a `CHECK` constraint).
+
+**Note:** This table has no foreign key to `users` because the user account does not yet exist. Once verified, the user row is created in `users` and this row is deleted.
+
+---
+
+### 2.3 `datasets`
 Represents a dataset used in experiments. Can be of three types:
 - **canvas** – created with the point‑and‑click tool. The actual points are stored in the `data` JSONB column.
 - **uploaded** – a CSV file uploaded by the user. The file is stored on disk/S3, metadata is kept here.
@@ -111,7 +146,7 @@ Anonymous users can create temporary datasets (not linked to a user account) tha
 
 ---
 
-### 2.3 `experiments`
+### 2.4 `experiments`
 Each time a user runs a training job, one `experiment` row is created.
 
 | Column | Type | Constraints | Description |
@@ -134,7 +169,7 @@ Each time a user runs a training job, one `experiment` row is created.
 
 ---
 
-### 2.4 `experiment_results`
+### 2.5 `experiment_results`
 Stores the output of a completed experiment. One‑to‑one with `experiments`.
 
 | Column | Type | Constraints | Description |
@@ -181,6 +216,23 @@ Given the max of 200 points and no need to query points individually, the simpli
 - Heavily queried paths: user’s experiment history (ordered by `created_at`) → composite index `(user_id, created_at)`.
 - Cleanup jobs for temporary datasets → index on `(is_temporary, created_at)`.
 - Foreign keys indexed automatically by PostgreSQL? Yes, but explicit indexes can improve JOIN performance.
+
+### 3.7 Email Verification (Pre‑registration)
+
+To avoid orphaned accounts and respect user privacy, we implemented a **pre‑registration** flow:
+
+- No user account is created until the email address is verified.
+- Signup stores a `pending_registrations` row with a one‑time token and an expiry (24 hours).
+- The verification email contains a link to `GET /auth/verify-email?token=...`. When clicked, the backend creates the `users` record and deletes the pending row.
+- This design prevents:
+  - Unverified (dead) accounts from accumulating in the `users` table.
+  - Email typos or malicious signups from creating real database rows.
+  - Having to manage an `is_verified` flag and periodic cleanup of expired unverified users.
+- It also simplifies the login logic: any user in the `users` table is fully verified, so no extra checks are needed.
+
+**Downsides:** A user who loses the verification email must restart the signup process (or request a new token via `POST /auth/resend-verification`). This is acceptable for an MVP.
+
+**Cleanup:** Expired pending registrations are deleted periodically (e.g., daily Celery beat task or PostgreSQL `pg_cron`). No application logic ever queries expired rows.
 
 ---
 
@@ -246,6 +298,16 @@ class ExperimentResult(Base):
     confusion_matrix_data = Column(JSONB, nullable=True)
     plot_paths = Column(JSONB, default={})
     created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+# pending_registration.py
+class PendingRegistration(Base):
+    __tablename__ = "pending_registrations"
+    id = Column(UUID, primary_key=True, default=uuid4)
+    email = Column(String, unique=True, nullable=False, index=True)
+    hashed_password = Column(String, nullable=False)
+    verification_token = Column(String, unique=True, nullable=False, index=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    expires_at = Column(DateTime(timezone=True), nullable=False)
 ```
 
 ---

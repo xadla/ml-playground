@@ -22,12 +22,13 @@ Security is built into every layer of the ML Playground — not bolted on at the
 
 ### 2.1 Password Handling
 - **Hashing:** All passwords are hashed using `bcrypt` via `passlib`. bcrypt is intentionally slow, making brute‑force attacks expensive.
-- **Storage:** Only the hash is stored in the `users` table. Plain‑text passwords never touch the database.
+- **Storage:** During signup, the password hash is stored temporarily in the pending_registrations table. After email verification, the hash is moved to the users table. Plain‑text passwords never touch the database beyond the initial hash creation.
 - **Validation:** Minimum 8 characters enforced by Pydantic schema.
 
 ### 2.2 JSON Web Tokens (JWT)
 - **Algorithm:** HS256 with a strong, randomly generated secret (`JWT_SECRET`).
 - **Expiry:** Access tokens expire after **24 hours**. No refresh tokens in MVP (the user re‑logs in); future versions will add refresh token rotation.
+- **JWT issuance:** A JWT is issued only after the user completes email verification (either returned directly from GET /auth/verify-email or from POST /auth/login afterwards). No token is issued during the initial signup request.
 - **Storage on client:** Tokens are stored in `localStorage` (MVP). For production hardening, move to an httpOnly, Secure, SameSite cookie.
 - **Transmission:** Tokens are sent only over HTTPS (enforced by Nginx).
 

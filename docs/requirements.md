@@ -93,17 +93,20 @@ The ML Playground is a stand‑alone web application consisting of a React front
 - **Description:** A visitor can create an account by providing an email and password.
 - **Acceptance Criteria:**
   - Signup form fields: email, password, confirm password.
-  - Email must be unique; server returns error if already registered.
+  - Email must not already belong to a verified user. If a pending registration already exists, either return a 409 (conflict) or silently resend the verification email (UX choice).
   - Password must be at least 8 characters with basic complexity (uppercase + number).
-  - On success, user is auto‑logged‑in (JWT returned) and redirected to the workspace.
-  - Email validation format is checked both client‑side and server‑side (Pydantic).
+  - On success, the server sends a verification email to the provided address. The frontend shows a "Check your inbox to verify your email" screen.
+  - No JWT is returned at this stage.
+  - Rate limiting: max 3 signup attempts per email per hour.
+  - Email validation format is checked client‑side and server‑side (Pydantic).
 
 **FR6 – User Login**
 - **Description:** A registered user can log in with email and password.
 - **Acceptance Criteria:**
   - Login form fields: email, password.
+  - Only users with a record in the users table (i.e., those who have completed email verification) can log in.
   - On success, a JWT access token is returned and stored in the browser (httpOnly cookie or secure localStorage; document the choice).
-  - On failure, a generic error message is shown (“Invalid email or password”).
+  - On failure (invalid credentials or user doesn’t exist), a generic error message is shown: “Invalid email or password.”
   - Rate limiting: maximum 5 failed attempts per IP per minute.
 
 **FR7 – Protected Routes / Session**
@@ -119,6 +122,15 @@ The ML Playground is a stand‑alone web application consisting of a React front
   - Token is cleared from storage.
   - User is redirected to the landing page.
   - Saved experiments are not visible until re‑authentication.
+
+**FR9 – Resend Verification Email**
+- **Description:** A user who hasn’t completed verification (i.e., has a pending registration) can request a new verification email.
+- **Acceptance Criteria:**
+  - Accessible via “Didn’t receive verification email?” link on signup success page or login page.
+  - Frontend calls POST /auth/resend-verification with email address.
+  - If a pending registration exists for that email, a new email is sent (using the same token or a fresh token – decide).
+  - If no pending registration exists or the email is already verified, return 404/409 with generic message (to avoid email enumeration).
+  - Rate limiting: max 3 requests per email per hour.
 
 **FR9 – Password Reset (Future consideration, note only)**
 - **Description:** A mechanism to reset forgotten passwords. Not in MVP scope, but the database schema should support a `reset_token` field for future implementation.

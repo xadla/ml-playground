@@ -89,58 +89,78 @@ Stories are grouped by feature area. Each includes a **priority** (P1 = MVP, P2 
 
 ## 3. Authentication & Accounts
 
-### US6 – Create an account
-> As an **anonymous visitor**, I want to **sign up with my email and password** so that I can save my experiments and return to them later.
+### US6 – Request account verification (Sign up)
+> As an **anonymous visitor**, I want to **sign up with my email and password** so that I can receive a verification email and later create a permanent account.
 
 **Priority:** P1 (MVP)
 **Traceability:** FR5
 **Acceptance Criteria:**
 - Signup form with email, password, confirm password.
-- Email uniqueness validated server‑side.
-- On success, auto‑logged‑in and redirected to workspace.
-- Clear error messages for invalid inputs.
+- Email must not already belong to a **verified** account. If a pending registration exists, the user is informed and offered to resend verification.
+- Password minimum 8 characters.
+- On success, a verification email is sent. The user sees a message: “Check your inbox to verify your email. Your account will be created after verification.”
+- **No automatic login** – no JWT token is returned.
+- Rate limiting: max 3 signup attempts per email per hour.
 
----
+### US7 – Complete registration (Email verification)
+> As a **visitor who signed up**, I want to **click a link in my email to verify my address** so that my account is permanently created and I can log in.
 
-### US7 – Log in to my account
-> As a **registered user**, I want to **log in with my email and password** so that I can access my saved experiments from any device.
+**Priority:** P1 (MVP)
+**Traceability:** FR5b
+**Acceptance Criteria:**
+- Verification link opens a frontend route that calls `GET /auth/verify-email?token=...`.
+- If token is valid and not expired, the backend creates a user account and optionally returns a JWT (auto‑login) or redirects to login page.
+- On success, the user sees “Email verified. Your account is ready!” and is logged in (or sent to login).
+- If token is invalid or expired, an error message is shown with a link to request a new verification email.
+
+### US8 – Log in to my account
+> As a **registered user** (verified), I want to **log in with my email and password** so that I can access my saved experiments from any device.
 
 **Priority:** P1 (MVP)
 **Traceability:** FR6
 **Acceptance Criteria:**
 - Login form with email and password.
-- JWT token stored on success.
-- Rate limiting prevents brute‑force attacks.
-- Generic error message on failure for security.
+- Only users with a verified account (present in `users` table) can log in.
+- On success, a JWT token is stored on the client.
+- Rate limiting prevents brute‑force attacks (max 5 failed attempts per IP per minute).
+- Generic error message on failure: “Invalid email or password” (does not reveal whether email exists or is unverified).
 
----
-
-### US8 – Log out securely
+### US9 – Log out securely
 > As a **registered user**, I want to **log out of my account** so that my saved experiments are not accessible to others on a shared device.
 
 **Priority:** P1 (MVP)
 **Traceability:** FR8
 **Acceptance Criteria:**
-- Logout button clears token.
+- Logout button clears the JWT token from client storage.
 - User redirected to landing page.
-- History inaccessible until re‑authentication.
+- History and saved experiments are inaccessible until re‑authentication.
 
----
+### US10 – Resend verification email
+> As a **visitor who signed up but didn’t receive or lost the verification email**, I want to **request a new verification email** so that I can complete my registration without re‑entering my password.
 
-### US9 – Know why I should sign up
+**Priority:** P1 (MVP)
+**Traceability:** FR9
+**Acceptance Criteria:**
+- A “Resend verification email” link is available on the signup success page and login page.
+- User provides their email address; frontend calls `POST /auth/resend-verification`.
+- If a pending registration exists for that email and it is not yet verified, a new email is sent (same or fresh token).
+- The user sees a success message: “If an account is pending verification, an email has been sent.”
+- Rate limiting: max 3 requests per email per hour (to prevent abuse).
+
+### US11 – Know why I should sign up
 > As an **anonymous visitor**, I want to **see a clear prompt explaining the benefits of creating an account** so that I understand what I gain before committing.
 
 **Priority:** P1 (MVP)
 **Traceability:** FR7
 **Acceptance Criteria:**
-- Non‑intrusive banner or tooltip when using save features: "Log in to save your experiments and compare them later."
+- Non‑intrusive banner or tooltip when using save features: “Log in to save your experiments and compare them later.”
 - The prompt is dismissible but reappears on next relevant action.
 
 ---
 
 ## 4. Experiment Configuration
 
-### US10 – Choose an algorithm from a list
+### US12 – Choose an algorithm from a list
 > As a **learner**, I want to **select an ML algorithm from a dropdown** so that I can try different models without writing any code.
 
 **Priority:** P1 (MVP)
@@ -152,7 +172,7 @@ Stories are grouped by feature area. Each includes a **priority** (P1 = MVP, P2 
 
 ---
 
-### US11 – Tune hyperparameters with sliders
+### US13 – Tune hyperparameters with sliders
 > As a **learner**, I want to **adjust hyperparameters using sliders and number inputs** so that I can intuitively explore their effect without knowing the exact syntax.
 
 **Priority:** P1 (MVP)
@@ -164,7 +184,7 @@ Stories are grouped by feature area. Each includes a **priority** (P1 = MVP, P2 
 
 ---
 
-### US12 – Choose which column to predict
+### US14 – Choose which column to predict
 > As a **learner**, I want to **select which column of my dataset is the target variable** so that I can control what the model tries to learn.
 
 **Priority:** P1 (MVP)
@@ -178,7 +198,7 @@ Stories are grouped by feature area. Each includes a **priority** (P1 = MVP, P2 
 
 ## 5. Training & Execution
 
-### US13 – Run an experiment with one click
+### US15 – Run an experiment with one click
 > As a **learner**, I want to **click a single "Run" button to train the model** so that I don't have to manage any code or terminal.
 
 **Priority:** P1 (MVP)
@@ -191,7 +211,7 @@ Stories are grouped by feature area. Each includes a **priority** (P1 = MVP, P2 
 
 ---
 
-### US14 – See training progress
+### US16 – See training progress
 > As a **learner**, I want to **see a loading state or progress indicator while the model trains** so that I know the system is working and not frozen.
 
 **Priority:** P1 (MVP)
@@ -203,7 +223,7 @@ Stories are grouped by feature area. Each includes a **priority** (P1 = MVP, P2 
 
 ---
 
-### US15 – Understand what went wrong if training fails
+### US17 – Understand what went wrong if training fails
 > As a **learner**, I want to **see a clear error message if my experiment fails** so that I can fix the problem (e.g., wrong target column, incompatible hyperparameters) without guessing.
 
 **Priority:** P2 (Post‑MVP)
@@ -216,7 +236,7 @@ Stories are grouped by feature area. Each includes a **priority** (P1 = MVP, P2 
 
 ## 6. Results Visualization
 
-### US16 – See performance metrics
+### US18 – See performance metrics
 > As a **learner**, I want to **see key metrics like accuracy or R² after training** so that I can quantitatively evaluate the model's performance.
 
 **Priority:** P1 (MVP)
@@ -228,7 +248,7 @@ Stories are grouped by feature area. Each includes a **priority** (P1 = MVP, P2 
 
 ---
 
-### US17 – Visualise the decision boundary
+### US19 – Visualise the decision boundary
 > As a **learner**, I want to **see a plot showing the model's decision boundary overlaid on my data points** so that I can visually understand how the algorithm separates classes.
 
 **Priority:** P1 (MVP)
@@ -240,7 +260,7 @@ Stories are grouped by feature area. Each includes a **priority** (P1 = MVP, P2 
 
 ---
 
-### US18 – See a confusion matrix
+### US20 – See a confusion matrix
 > As a **learner**, I want to **see a confusion matrix as a heatmap** so that I can understand which classes the model confuses with each other.
 
 **Priority:** P1 (MVP)
@@ -252,7 +272,7 @@ Stories are grouped by feature area. Each includes a **priority** (P1 = MVP, P2 
 
 ---
 
-### US19 – Understand what the results mean
+### US21 – Understand what the results mean
 > As a **learner**, I want to **read plain‑language explanations alongside metrics and plots** so that I can learn what each number and visualization actually tells me about my model.
 
 **Priority:** P2 (Post‑MVP)
@@ -265,7 +285,7 @@ Stories are grouped by feature area. Each includes a **priority** (P1 = MVP, P2 
 
 ## 7. Experiment History & Comparison
 
-### US20 – Save my experiment
+### US22 – Save my experiment
 > As a **registered user**, I want to **save the current experiment results to my account** so that I can revisit them later without re‑running the training.
 
 **Priority:** P1 (MVP)
@@ -277,7 +297,7 @@ Stories are grouped by feature area. Each includes a **priority** (P1 = MVP, P2 
 
 ---
 
-### US21 – View my past experiments
+### US23 – View my past experiments
 > As a **returning user**, I want to **see a list of all my saved experiments** so that I can pick up where I left off.
 
 **Priority:** P1 (MVP)
@@ -289,7 +309,7 @@ Stories are grouped by feature area. Each includes a **priority** (P1 = MVP, P2 
 
 ---
 
-### US22 – Compare experiments side‑by‑side
+### US24 – Compare experiments side‑by‑side
 > As a **returning user**, I want to **select two or more saved experiments and compare their metrics in a table** so that I can directly see how different hyperparameters affected performance.
 
 **Priority:** P1 (MVP)
@@ -302,7 +322,7 @@ Stories are grouped by feature area. Each includes a **priority** (P1 = MVP, P2 
 
 ---
 
-### US23 – Delete old experiments
+### US25 – Delete old experiments
 > As a **registered user**, I want to **delete experiments I no longer need** so that my history stays clean and relevant.
 
 **Priority:** P2 (Post‑MVP)
@@ -316,7 +336,7 @@ Stories are grouped by feature area. Each includes a **priority** (P1 = MVP, P2 
 
 ## 8. General Usability
 
-### US24 – Understand the tool on first visit
+### US26 – Understand the tool on first visit
 > As an **anonymous visitor**, I want to **see a brief onboarding or sample workflow** so that I immediately understand what the playground does and how to start.
 
 **Priority:** P2 (Post‑MVP)
@@ -328,7 +348,7 @@ Stories are grouped by feature area. Each includes a **priority** (P1 = MVP, P2 
 
 ---
 
-### US25 – Use the playground on my tablet
+### US27 – Use the playground on my tablet
 > As a **learner**, I want to **use the playground on a tablet** so that I can experiment during a commute or in a classroom without a laptop.
 
 **Priority:** P2 (Post‑MVP)
@@ -352,7 +372,7 @@ Stories are grouped by feature area. Each includes a **priority** (P1 = MVP, P2 
 | Results Visualization | US16, US17, US18, US19 | 3 | 1 | 0 |
 | History & Comparison | US20, US21, US22, US23 | 3 | 1 | 0 |
 | General Usability | US24, US25 | 0 | 2 | 0 |
-| **Total** | **25 stories** | **20** | **5** | **0** |
+| **Total** | **27 stories** | **21** | **5** | **0** |
 
 ---
 
@@ -364,21 +384,23 @@ Stories are grouped by feature area. Each includes a **priority** (P1 = MVP, P2 
 | FR2 — Dataset Naming | US2 |
 | FR3 — CSV Upload | US4 |
 | FR4 — Built‑in Datasets | US5 |
-| FR5 — Signup | US6 |
-| FR6 — Login | US7 |
-| FR7 — Protected Routes | US9, US20 |
-| FR8 — Logout | US8 |
-| FR10 — Algorithm Selection | US10 |
-| FR11 — Hyperparameter Tuning | US11 |
-| FR10 — Target Column Selection | US12 |
-| FR12 — Run Experiment | US13 |
-| FR13 — Asynchronous Training | US14, US15 |
-| FR14 — Metrics Display | US16 |
-| FR15 — Plots | US17, US18 |
-| FR16 — Save Experiment | US20 |
-| FR17 — View History | US21 |
-| FR18 — Compare Experiments | US22 |
-| NFR — Usability | US19, US24, US25 |
+| FR5 — Signup (request verification) | US6 |
+| FR5b — Email verification | US7 |
+| FR6 — Login | US8 |
+| FR7 — Protected Routes | US11, US22 |
+| FR8 — Logout | US9 |
+| FR9 — Resend verification | US10 |
+| FR10 — Algorithm Selection | US12 |
+| FR11 — Hyperparameter Tuning | US13 |
+| FR12 — Target Column Selection | US14 |
+| FR13 — Run Experiment | US15 |
+| FR14 — Asynchronous Training | US16, US17 |
+| FR15 — Metrics Display | US18 |
+| FR16 — Plots | US19, US20 |
+| FR17 — Save Experiment | US22 |
+| FR18 — View History | US23 |
+| FR19 — Compare Experiments | US24 |
+| NFR — Usability | US21, US26, US27 |
 
 ---
 

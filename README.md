@@ -102,7 +102,7 @@ Highly recommended reading for contributors and curious engineers:
 |---|---|
 | Project Vision | Why this project exists and for whom |
 | Requirements | Full functional & non‑functional specs |
-| User Stories | 25 stories with priorities and traceability |
+| User Stories | 27 stories with priorities and traceability |
 | Tech Stack | Tooling choices and justifications |
 | Database Schema | ERD, table definitions, design rationale |
 | Architecture Overview | System design, data flows, component details |

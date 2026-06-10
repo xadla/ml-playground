@@ -85,10 +85,10 @@ backend/app/
 └── train.py
 ```
 - **Authentication flow:**
-  - User sends credentials → `POST /api/v1/auth/login`
-  - Backend verifies password with bcrypt, returns JWT access token
-  - Frontend stores token in memory/localStorage, sends in `Authorization: Bearer <token>`
-  - Protected endpoints use a FastAPI dependency that decodes and verifies the token
+  - **Signup:** `POST /auth/signup` validates email (not already used by a verified user), creates a pending registration record in a separate table (pending_registrations), generates a unique token (expires in 24h), sends verification email. Returns 202 Accepted (no user account created, no JWT).
+  - **Verification:** `GET /auth/verify-email?token=...` checks the token, if valid creates a new row in users table (with the email and password hash from the pending record), deletes the pending registration, and optionally returns a JWT access token.
+  - **Login:** `POST /auth/login` only works for existing users (who have completed verification). Returns JWT.
+  - **Protected endpoints** (history, save experiment) – require a valid JWT, which implies the user is verified (since only verified users have a user record).
 - **Async training flow:**
   - `POST /api/v1/experiments` → creates experiment row with status `pending`
   - Sends a Celery task `train_model(experiment_id)`
@@ -123,35 +123,36 @@ sequenceDiagram
     participant Frontend as React (Browser)
     participant Nginx
     participant Backend as FastAPI
-    participant Redis
-    participant Worker as Celery Worker
     participant DB as PostgreSQL
+    participant EmailService
 
-    User->>Frontend: Clicks on canvas to place points
-    Frontend->>Frontend: Stores points in local state [{x,y,class}...]
-    User->>Frontend: Names dataset, selects algorithm, sets hyperparameters, clicks "Run"
-    Frontend->>Nginx: POST /api/v1/experiments {dataset_data, algorithm, hyperparams}
-    Nginx->>Backend: Proxies request
-    Backend->>DB: INSERT dataset (type=canvas, data=points) if new
-    Backend->>DB: INSERT experiment (status=pending)
-    Backend->>Redis: Publish Celery task train_model(experiment_id)
-    Backend-->>Frontend: 202 Accepted {experiment_id}
-    Frontend->>Frontend: Show loading state, start polling GET /api/v1/experiments/{id}
-    Redis->>Worker: Deliver task
-    Worker->>DB: FETCH experiment + dataset
-    Worker->>Worker: Deserialize data, train scikit-learn model, compute metrics, generate plots
-    Worker->>DB: INSERT experiment_result
-    Worker->>DB: UPDATE experiment status=completed
-    loop Polling
-        Frontend->>Nginx: GET /api/v1/experiments/{id}
-        Nginx->>Backend: Proxy
-        Backend->>DB: SELECT experiment+result
-        Backend-->>Frontend: {status: completed, metrics: {...}, plots: [...]}
+    User->>Frontend: Enters email/password, clicks Sign Up
+    Frontend->>Nginx: POST /api/v1/auth/signup
+    Nginx->>Backend: Proxy
+    Backend->>DB: SELECT * FROM users WHERE email = ?
+    alt Email already has verified account
+        Backend-->>Frontend: 409 Conflict
+    else Email free
+        Backend->>DB: INSERT INTO pending_registrations (email, password_hash, token, expires_at)
+        Backend->>EmailService: Send verification email (link with token)
+        Backend-->>Frontend: 202 Accepted (message: check email)
     end
-    Frontend->>Frontend: Render metrics, plots
-    User->>Frontend: (If logged in) Clicks "Save"
-    Frontend->>Nginx: POST /api/v1/experiments/{id}/save (or experiment already saved)
-    Note over Frontend,Nginx: Experiment already persisted. Save associates with user if anonymous earlier
+    Frontend->>Frontend: Show "Verify your email" screen
+
+    User->>User: Opens email, clicks verification link
+    User->>Frontend: Redirects to /verify-email?token=...
+    Frontend->>Nginx: GET /api/v1/auth/verify-email?token=...
+    Nginx->>Backend: Proxy
+    Backend->>DB: SELECT * FROM pending_registrations WHERE token = ? AND expires_at > NOW()
+    alt Token valid
+        Backend->>DB: INSERT INTO users (email, password_hash, created_at)
+        Backend->>DB: DELETE FROM pending_registrations WHERE token = ?
+        Backend-->>Frontend: 201 Created (optional access_token)
+        Frontend->>Frontend: Store token, redirect to workspace
+    else Token invalid/expired
+        Backend-->>Frontend: 404 / 410 error
+        Frontend->>Frontend: Show error, offer resend
+    end
 ```
 
 ## 4. Deployment Architecture (docker-compose)
@@ -221,8 +222,9 @@ volumes:
 - **Authentication:** JWT tokens (signed, with expiry). Passwords hashed with bcrypt
 - **Input validation:** Pydantic schemas on every endpoint. File upload size limits and MIME type checks
 - **Rate limiting:** Nginx can apply basic rate limiting; backend can use `slowapi` for per‑endpoint limits (e.g., `/login`)
+- **Pending registration expiration:** tokens automatically expire after 24 hours. No orphaned accounts are created.
 - **SQL injection prevention:** SQLAlchemy ORM with parameterized queries
-- **Data isolation:** Users can only access their own experiments and datasets (enforced by query filters)
+- **Data isolation:** Users can only access their own experiments, datasets, and history (enforced by query filters). Pending registrations are isolated by token (unguessable UUID) and expire automatically.
 - **Ephemeral storage:** Uploaded files are stored temporarily; periodic cleanup of temporary datasets
 
 ## 6. Monitoring & Observability (Future)

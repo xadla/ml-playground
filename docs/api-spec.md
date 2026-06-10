@@ -24,11 +24,18 @@ Authorization: Bearer <access_token>
 - Authentication endpoints: max 5 requests per minute per IP.
 - General API: max 60 requests per minute per authenticated user, 30 per anonymous IP.
 
+### 1.4 Email Verification (Pre‑registration)
+
+- Users **do not** have an account until they verify their email.
+- On signup, a verification email is sent; no user record is stored in the main `users` table.
+- A temporary pending registration is stored (expires after 24 hours).
+- After clicking the verification link, the account is **created** and the user can log in.
+
 ---
 
 ## 2. Authentication Endpoints
 
-### 2.1 Sign Up
+### 2.1 Sign Up (Request Verification)
 - **Endpoint:** `POST /auth/signup`
 - **Access:** Public
 
@@ -41,22 +48,28 @@ Authorization: Bearer <access_token>
 ```
 
 **Validation:**
-- `email`: valid email format, unique.
+- `email`: valid email format, not already used by an existing verified user.
 - `password`: min 8 characters.
 
-**Success Response (201 Created):**
+**Behavior**
+- Does not create a user account.
+- Generates a unique verification token and stores it temporarily (expires in 24 hours).
+- Sends a verification email to the provided address.
+- Same email cannot have more than one pending registration at a time (if a pending token exists and is not expired, resend the same or reject with 409).
+
+**Success Response (202 Accepted):**
 ```json
 {
-  "id": "uuid",
-  "email": "user@example.com",
-  "access_token": "eyJ...",
-  "token_type": "bearer"
+  "message": "Verification email sent. Please check your inbox to complete registration.",
+  "email": "user@example.com"
 }
 ```
 
 **Error Responses:**
-- `409 Conflict` – email already exists.
+- `409 Conflict` – email already has a verified account.
+- `409 Conflict` – a pending registration already exists for this email (with a note to check email or request resend).
 - `422 Unprocessable Entity` – validation errors.
+- `429 Too Many Requests` – rate limit for signup attempts.
 
 ### 2.2 Log In
 - **Endpoint:** `POST /auth/login`
@@ -82,6 +95,8 @@ Authorization: Bearer <access_token>
 - `401 Unauthorized` – invalid credentials (generic message: "Invalid email or password").
 - `429 Too Many Requests` – rate limit hit.
 
+**Note:** Only users who have completed email verification can log in. If an email has a pending registration but no account, login will fail with `401 Unauthorized`.
+
 ### 2.3 Log Out
 - **Endpoint:** `POST /auth/logout` 🔒
 - **Note:** Stateless JWT; logout is a no‑op on the server. Frontend discards the token. Future: could implement a token blocklist.
@@ -98,6 +113,63 @@ Authorization: Bearer <access_token>
   "created_at": "2026-06-06T12:00:00Z"
 }
 ```
+
+### 2.5 Resend Verification Email
+- **Endpoint:** `POST /auth/resend-verification`
+- **Access:** Public
+
+**Request Body:**
+```json
+{
+  "email": "user@example.com"
+}
+```
+
+**Behavior**
+- If a pending registration exists for this email (token not expired, account not yet created), resend the verification email with the same token.
+- If an account already exists and is verified, return 409.
+- If no pending registration exists, return 404.
+
+**Success Response (200 OK):**
+```json
+{
+  "message": "Verification email resent."
+}
+```
+
+**Error Responses:**
+- `404 Not Found` – no pending registration for this email.
+- `409 Conflict` – email already has a verified account.
+- `429 Too Many Requests` – rate limit (max 3 per hour per email).
+
+### 2.6 Verify Email (Complete Registration)
+- **Endpoint:** `GET /auth/verify-email`
+- **Access:** Public
+
+**Query Parameters:**
+- `token` (required) – the verification token from the email.
+
+**Behavior:**
+- Validates the token.
+- If valid and not expired:
+  - Creates a new user account in the `users` table with `is_verified = true`.
+  - Deletes or marks the pending registration as used.
+  - Optionally generates and returns an access token (to log the user in immediately).
+- If token invalid/expired, returns error.
+
+**Success Response (201 Created):**
+```json
+{
+  "message": "Email verified. Account created successfully.",
+  "access_token": "eyJ...",
+  "token_type": "bearer"
+}
+```
+
+**Error Responses:**
+- `400 Bad Request` – token missing.
+- `404 Not Found` – invalid token.
+- `410 Gone` – token expired.
 
 ---
 
@@ -269,7 +341,7 @@ name: (optional) string
 
 ### 4.3 Save Experiment (for authenticated users)
 - **Endpoint:** `POST /experiments/{experiment_id}/save` 🔒
-- **Description:** If the experiment was run anonymously, this endpoint associates it with the authenticated user. If already owned, returns 200.
+- **Description:** Requires a verified user account (must be logged in). Associates an anonymously run experiment with the user’s history.
 
 **Response (200 OK):**
 ```json
@@ -420,13 +492,14 @@ All endpoints are prefixed with `/api/v1/`. Future breaking changes will increme
 
 ## 10. Example Workflow (End‑to‑End)
 
-1. Sign up → `POST /auth/signup` → get token.
-2. Create data on canvas (client‑side), then Run:
-   - `POST /experiments` with canvas dataset → `202 Accepted` with experiment ID.
-3. Poll `GET /experiments/{id}` until status is `completed`.
-4. Save to history: `POST /experiments/{id}/save` (with token).
-5. View history: `GET /history` → list of experiments.
-6. Compare two runs: `POST /history/compare` with IDs.
+1. **Request verification** → `POST /auth/signup` with email/password → receives `202 Accepted` and an email is sent.
+2. **User clicks verification link** → frontend calls `GET /auth/verify-email?token=...` → account is created, returns access token.
+3. (Optionally, if token not returned, user logs in via `POST /auth/login`.)
+4. Create data on canvas (client‑side), then Run → `POST /experiments` with canvas dataset → `202 Accepted` with experiment ID.
+5. Poll `GET /experiments/{id}` until `status: "completed"`.
+6. Save to history: `POST /experiments/{id}/save` (using token from step 2 or 3).
+7. View history: `GET /history`.
+8. Compare two runs: `POST /history/compare` with IDs.
 
 ---
 
