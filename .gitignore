@@ -40,7 +40,7 @@ volumes/
 # ============================================
 *.pkl
 *.joblib
-models/
+# models/
 *.h5
 *.pb
 checkpoints/
