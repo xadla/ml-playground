@@ -1,6 +1,6 @@
 from typing import Any, Literal
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 from app.models.domain.enums import AlgorithmEnum
 
@@ -12,8 +12,7 @@ class CanvasPoint(BaseModel):
     class_: str = Field(..., alias="class")  # JSON key "class"
     # Pydantic allows alias; we'll configure model to populate by alias
 
-    class Config:
-        populate_by_name = True  # allows both 'class' and 'class_'
+    model_config = ConfigDict(populate_by_name=True)
 
 
 class CanvasDataset(BaseModel):
