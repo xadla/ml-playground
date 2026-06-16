@@ -11,7 +11,9 @@ class Settings(BaseSettings):
     DATABASE_URL: str = (
         "postgresql+asyncpg://postgres:postgres@localhost:5432/mlplayground"
     )
-    TEST_DATABASE_URL: str = "sqlite+aiosqlite://"
+    TEST_DATABASE_URL: str = (
+        "postgresql+asyncpg://postgres:postgres@localhost:5433/mlplayground_test"
+    )
 
     # Redis
     REDIS_URL: str = "redis://localhost:6379/0"
