@@ -1,12 +1,13 @@
 import uuid
 from datetime import datetime
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from sqlalchemy import JSON, DateTime, ForeignKey, UniqueConstraint
 from sqlalchemy.dialects.postgresql import UUID as PGUUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from app.db.experiments import Experiment
+if TYPE_CHECKING:
+    from app.db.experiments import Experiment
 from app.db.models import Base, utcnow
 
 

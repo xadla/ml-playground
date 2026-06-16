@@ -1,16 +1,18 @@
 import uuid
 from datetime import datetime
-from typing import Any, Optional
+from typing import TYPE_CHECKING, Any, Optional
 
 from sqlalchemy import JSON, DateTime, Enum, ForeignKey, String
 from sqlalchemy.dialects.postgresql import UUID as PGUUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from app.db.datasets import Dataset
 from app.db.experiment_results import ExperimentResult
 from app.db.models import Base, utcnow
 from app.db.users import User
 from app.models.domain.enums import ExperimentStatusEnum
+
+if TYPE_CHECKING:
+    from app.db.datasets import Dataset
 
 
 class Experiment(Base):
