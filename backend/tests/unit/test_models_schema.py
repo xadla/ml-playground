@@ -14,7 +14,7 @@ from app.models.domain.enums import DatasetTypeEnum, ExperimentStatusEnum
 
 
 @pytest.mark.asyncio
-async def test_create_user_with_updated_at(db_session):
+async def test_create_user_with_updated_at(db_session: AsyncSession):
     """Test that user has updated_at timestamp"""
     repo = UserRepository(db_session)
     user = User(

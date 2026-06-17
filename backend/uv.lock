@@ -908,8 +908,14 @@ dev = [
     { name = "pytest" },
     { name = "pytest-asyncio" },
     { name = "pytest-cov" },
+    { name = "types-passlib" },
     { name = "types-python-jose" },
     { name = "types-redis" },
+]
+
+[package.dev-dependencies]
+dev = [
+    { name = "types-passlib" },
 ]
 
 [package.metadata]
@@ -935,11 +941,15 @@ requires-dist = [
     { name = "redis", specifier = "==5.2.0" },
     { name = "slowapi", specifier = "==0.1.6" },
     { name = "sqlalchemy", extras = ["asyncio"], specifier = "==2.0.0" },
+    { name = "types-passlib", marker = "extra == 'dev'", specifier = "==1.7.7" },
     { name = "types-python-jose", marker = "extra == 'dev'", specifier = "==3.3.0" },
     { name = "types-redis", marker = "extra == 'dev'", specifier = "==4.6.0" },
     { name = "uvicorn", extras = ["standard"], specifier = "==0.34.0" },
 ]
 provides-extras = ["dev"]
+
+[package.metadata.requires-dev]
+dev = [{ name = "types-passlib", specifier = ">=1.7.7" }]
 
 [[package]]
 name = "packaging"
@@ -1396,6 +1406,15 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/bd/0b/b352742758a6054d1053783887bf8cfb739deda1102fda8722294bdc01f7/types_cffi-2.0.0.20260518.tar.gz", hash = "sha256:f9707e66c13454789a58f8843d1ded4a66f1e9c8b10bd24d5eb5e0f25c0c5472", size = 17790, upload-time = "2026-05-18T06:06:50.672Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/68/44/d3b4aafa20a3f76384ba19a513d39272add13746dcfe0409d8d4974fd464/types_cffi-2.0.0.20260518-py3-none-any.whl", hash = "sha256:5b68a215a95d0eac4203b58e766ff7fe40c2e091b1fa1a9e54111f04cc560084", size = 20198, upload-time = "2026-05-18T06:06:49.83Z" },
+]
+
+[[package]]
+name = "types-passlib"
+version = "1.7.7"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/42/bd/634c2ad826e771ed944c36980b5935fde60b020db7d586895b1f6fc2c9cf/types-passlib-1.7.7.tar.gz", hash = "sha256:3a5f7e8cbe563ce71717a0fd92e25223c263418ffcaae61643b9bc1f701835cd", size = 16504, upload-time = "2022-07-12T18:24:07.166Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/30/a4/a4448bc606e9dc397543abd0dabe27bac65d47969b08794e365422be1df5/types_passlib-1.7.7-py3-none-any.whl", hash = "sha256:49fae3bb06f444fd452df1b1cdb584d592cf4086f4ece38166aa47efc95cff5a", size = 31657, upload-time = "2022-07-12T18:24:05.811Z" },
 ]
 
 [[package]]
