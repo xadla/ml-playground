@@ -20,6 +20,7 @@ from app.models.response.auth import (
     VerifyEmailResponse,
 )
 from app.services.auth_service import AuthService
+from app.utils.rate_limit import get_email_key, limiter
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -37,6 +38,7 @@ def get_auth_service(db: Annotated[AsyncSession, Depends(get_db)]) -> AuthServic
     response_model=SignupResponse,
     status_code=status.HTTP_202_ACCEPTED,
 )
+@limiter.limit("5/minute")  # type: ignore
 async def signup(
     request: SignupRequest,
     auth_service: Annotated[AuthService, Depends(get_auth_service)],
@@ -55,6 +57,7 @@ async def signup(
     "/login",
     response_model=LoginResponse,
 )
+@limiter.limit("5/minute")  # type: ignore
 async def login(
     request: LoginRequest,
     auth_service: Annotated[AuthService, Depends(get_auth_service)],
@@ -71,6 +74,7 @@ async def login(
     "/logout",
     response_model=MessageResponse,
 )
+@limiter.limit("5/minute")  # type: ignore
 async def logout(
     current_user: Annotated[User, Depends(get_current_user)],  # requires auth
 ):
@@ -94,6 +98,7 @@ async def get_me(
     "/resend-verification",
     response_model=MessageResponse,
 )
+@limiter.limit("3/hour", key_func=get_email_key)  # type: ignore
 async def resend_verification(
     request: ResendVerificationRequest,
     auth_service: Annotated[AuthService, Depends(get_auth_service)],
@@ -119,6 +124,7 @@ async def resend_verification(
     response_model=VerifyEmailResponse,
     status_code=status.HTTP_201_CREATED,
 )
+@limiter.limit("5/minute")  # type: ignore
 async def verify_email(
     token: str,
     auth_service: Annotated[AuthService, Depends(get_auth_service)],
