@@ -5,6 +5,7 @@ from slowapi.errors import RateLimitExceeded
 from slowapi.middleware import SlowAPIMiddleware
 
 from app.config import settings
+from app.routes.auth import router as auth_router
 from app.routes.health import router as health_router
 from app.utils.rate_limit import limiter
 
@@ -51,6 +52,7 @@ def create_app() -> FastAPI:
 
     # Include routers
     app.include_router(health_router, prefix=settings.API_V1_PREFIX)
+    app.include_router(auth_router, prefix=settings.API_V1_PREFIX)
 
     return app
 

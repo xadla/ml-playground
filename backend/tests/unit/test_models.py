@@ -40,13 +40,13 @@ def test_create_experiment_canvas():
 def test_create_experiment_invalid_algorithm():
     with pytest.raises(ValidationError):
         CreateExperimentRequest(
-            dataset={"type": "canvas", "name": "X", "points": [], "feature_names": []},
-            algorithm="invalid",
+            dataset={"type": "canvas", "name": "X", "points": [], "feature_names": []},  # type: ignore
+            algorithm="invalid",  # type: ignore
             hyperparameters={},
             target_column="y",
         )
 
 
 def test_error_response_format():
-    error = ErrorResponse(error={"code": "AUTH_ERROR", "message": "Bad credentials"})
+    error = ErrorResponse(error={"code": "AUTH_ERROR", "message": "Bad credentials"})  # type: ignore
     assert error.error.code == "AUTH_ERROR"
