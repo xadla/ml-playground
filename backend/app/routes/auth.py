@@ -2,6 +2,7 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
+from starlette.requests import Request
 
 from app.core.dependencies import get_current_user
 from app.db.session import get_db
@@ -40,11 +41,14 @@ def get_auth_service(db: Annotated[AsyncSession, Depends(get_db)]) -> AuthServic
 )
 @limiter.limit("5/minute")  # type: ignore
 async def signup(
-    request: SignupRequest,
+    request: Request,
+    signup_request: SignupRequest,
     auth_service: Annotated[AuthService, Depends(get_auth_service)],
 ):
     try:
-        result = await auth_service.signup(request.email, request.password)
+        result = await auth_service.signup(
+            signup_request.email, signup_request.password
+        )
         return result
     except ValueError as e:
         if "already registered" in str(e) or "already pending" in str(e):
@@ -59,11 +63,12 @@ async def signup(
 )
 @limiter.limit("5/minute")  # type: ignore
 async def login(
-    request: LoginRequest,
+    request: Request,
+    login_request: LoginRequest,
     auth_service: Annotated[AuthService, Depends(get_auth_service)],
 ):
     try:
-        result = await auth_service.login(request.email, request.password)
+        result = await auth_service.login(login_request.email, login_request.password)
         return result
     except ValueError as e:
         raise HTTPException(status_code=401, detail=str(e)) from e
@@ -76,7 +81,9 @@ async def login(
 )
 @limiter.limit("5/minute")  # type: ignore
 async def logout(
-    current_user: Annotated[User, Depends(get_current_user)],  # requires auth
+    request: Request,
+    current_user: Annotated[User, Depends(get_current_user)],
+    db: Annotated[AsyncSession, Depends(get_db)],
 ):
     return {"message": "Logged out successfully (token discarded on client)."}
 
@@ -100,11 +107,14 @@ async def get_me(
 )
 @limiter.limit("3/hour", key_func=get_email_key)  # type: ignore
 async def resend_verification(
-    request: ResendVerificationRequest,
+    request: Request,
+    resend_verification_request: ResendVerificationRequest,
     auth_service: Annotated[AuthService, Depends(get_auth_service)],
 ):
     try:
-        result = await auth_service.resend_verification(request.email)
+        result = await auth_service.resend_verification(
+            resend_verification_request.email
+        )
         return result
     except ValueError as e:
         if "No pending" in str(e):
@@ -126,6 +136,7 @@ async def resend_verification(
 )
 @limiter.limit("5/minute")  # type: ignore
 async def verify_email(
+    request: Request,
     token: str,
     auth_service: Annotated[AuthService, Depends(get_auth_service)],
 ):

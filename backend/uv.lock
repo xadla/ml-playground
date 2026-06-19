@@ -915,7 +915,14 @@ dev = [
 
 [package.dev-dependencies]
 dev = [
+    { name = "fakeredis" },
+    { name = "polyfactory" },
+    { name = "pytest" },
+    { name = "pytest-asyncio" },
+    { name = "pytest-cov" },
     { name = "types-passlib" },
+    { name = "types-python-jose" },
+    { name = "types-redis" },
 ]
 
 [package.metadata]
@@ -949,7 +956,16 @@ requires-dist = [
 provides-extras = ["dev"]
 
 [package.metadata.requires-dev]
-dev = [{ name = "types-passlib", specifier = ">=1.7.7" }]
+dev = [
+    { name = "fakeredis", specifier = "==2.26.0" },
+    { name = "polyfactory", specifier = "==2.18.0" },
+    { name = "pytest", specifier = "==8.3.0" },
+    { name = "pytest-asyncio", specifier = "==0.25.0" },
+    { name = "pytest-cov", specifier = "==6.0.0" },
+    { name = "types-passlib", specifier = ">=1.7.7" },
+    { name = "types-python-jose", specifier = "==3.3.0" },
+    { name = "types-redis", specifier = "==4.6.0" },
+]
 
 [[package]]
 name = "packaging"

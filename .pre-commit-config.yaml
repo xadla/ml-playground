@@ -37,6 +37,7 @@ repos:
           - pytest-asyncio>=0.25.0
           - httpx>=0.28.0
           - types-passlib>=1.7.7
+          - bcrypt>=5.0.0
         # No args — reads from [tool.mypy] in pyproject.toml
         files: ^backend/.*\.py$
 
