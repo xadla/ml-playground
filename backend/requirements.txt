@@ -44,8 +44,12 @@ click-repl==0.3.0
     # via celery
 cryptography==48.0.1
     # via python-jose
+dnspython==2.8.0
+    # via email-validator
 ecdsa==0.19.2
     # via python-jose
+email-validator==2.1.0
+    # via ml-playground-backend (pyproject.toml)
 fastapi==0.115.0
     # via ml-playground-backend (pyproject.toml)
 greenlet==3.2.5
@@ -63,6 +67,7 @@ httpx==0.28.0
 idna==3.18
     # via
     #   anyio
+    #   email-validator
     #   httpx
 kombu==5.6.2
     # via celery
