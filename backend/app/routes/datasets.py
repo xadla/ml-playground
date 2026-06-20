@@ -2,6 +2,7 @@ from typing import Annotated, Any
 
 from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile, status
 from sqlalchemy.ext.asyncio import AsyncSession
+from starlette.requests import Request
 
 from app.db.session import get_db
 from app.models.response.datasets import (
@@ -33,6 +34,7 @@ async def list_builtin_datasets(
 )
 @limiter.limit("60/minute")  # type: ignore
 async def upload_dataset(
+    request: Request,
     service: Annotated[DatasetService, Depends(get_dataset_service)],
     file: UploadFile = File(...),  # noqa: B008
     name: str | None = Form(None),  # noqa: B008
