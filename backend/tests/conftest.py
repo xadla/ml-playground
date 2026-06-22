@@ -30,11 +30,11 @@ def engine() -> AsyncEngine:
 
 
 @pytest.fixture(scope="session")
-async def create_tables(engine: AsyncEngine) -> AsyncGenerator:
+async def create_tables(engine: AsyncEngine) -> AsyncGenerator[AsyncSession, None]:
     """Create all tables before tests run, drop them after."""
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
-    yield
+    yield  # type: ignore
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.drop_all)
 
@@ -42,7 +42,7 @@ async def create_tables(engine: AsyncEngine) -> AsyncGenerator:
 @pytest.fixture
 async def db_session(
     engine: AsyncEngine,
-    create_tables: AsyncGenerator,
+    create_tables: AsyncGenerator[AsyncSession, None],
 ) -> AsyncGenerator[AsyncSession, None]:
     """Create a fresh database session for each test."""
     async_session = async_sessionmaker(
