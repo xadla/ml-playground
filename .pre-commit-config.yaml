@@ -38,6 +38,10 @@ repos:
           - httpx>=0.28.0
           - types-passlib>=1.7.7
           - bcrypt>=5.0.0
+          - scikit-learn>=1.5
+          - matplotlib>=3.9
+          - numpy>=1.26
+          - pillow>=10.0
         # No args — reads from [tool.mypy] in pyproject.toml
         files: ^backend/.*\.py$
 

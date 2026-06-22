@@ -31,6 +31,9 @@ class Settings(BaseSettings):
     # File uploads
     UPLOAD_DIR: str = "./uploads"
 
+    # Plot created
+    PLOT_DIR: str = "./plots"
+
     # CORS
     ALLOWED_ORIGINS: list[str] = ["http://localhost:3000"]
 
