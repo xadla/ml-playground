@@ -34,6 +34,9 @@ class Settings(BaseSettings):
     # Plot created
     PLOT_DIR: str = "./plots"
 
+    # Celery tasks
+    SYNC_DATABASE_URL: str = "sqlite:///./test.db"
+
     # CORS
     ALLOWED_ORIGINS: list[str] = ["http://localhost:3000"]
 
