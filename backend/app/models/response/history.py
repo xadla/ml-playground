@@ -10,7 +10,7 @@ class HistoryItemResponse(BaseModel):
     algorithm: str
     hyperparameters: dict[str, Any]
     status: str
-    top_metric: dict[str, int] | None  # {"name": "accuracy", "value": 0.85}
+    top_metric: dict[str, Any] | None  # {"name": "accuracy", "value": 0.85}
     created_at: datetime
 
 

@@ -1,0 +1,112 @@
+import uuid
+from typing import Any
+
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.db.datasets import Dataset
+from app.db.experiments import Experiment
+from app.db.repositories.dataset import DatasetRepository
+from app.db.repositories.experiment import ExperimentRepository
+from app.infrastructure.celery_app import run_training
+from app.models.domain.enums import DatasetTypeEnum, ExperimentStatusEnum
+
+
+class ExperimentService:
+    def __init__(self, session: AsyncSession):
+        self.exp_repo = ExperimentRepository(session)
+        self.dataset_repo = DatasetRepository(session)
+        self.session = session
+
+    async def create_experiment(
+        self,
+        dataset_spec: dict[str, Any],
+        algorithm: str,
+        hyperparameters: dict[str, Any],
+        target_column: str,
+        user_id: uuid.UUID | None = None,
+    ) -> Experiment:
+        # 1. Create dataset record if canvas
+        dataset_id = None
+        if dataset_spec["type"] == "canvas":
+            # Create a dataset with type=canvas and store points in data field
+            canvas_dataset = Dataset(
+                name=dataset_spec.get("name", "Canvas Data"),
+                type=DatasetTypeEnum.canvas,
+                data={
+                    "points": dataset_spec["points"],
+                    "feature_names": dataset_spec.get("feature_names", []),
+                },
+                row_count=len(dataset_spec["points"]),
+                column_names=dataset_spec.get("feature_names", []) + [target_column],
+                is_temporary=True,  # canvas datasets are always temporary
+            )
+            canvas_dataset = await self.dataset_repo.create(canvas_dataset)
+            dataset_id = canvas_dataset.id
+        else:
+            # uploaded or builtin: use the provided id
+            dataset_id = uuid.UUID(dataset_spec["id"])
+            # Ensure dataset exists
+            ds = await self.dataset_repo.get(dataset_id)
+            if not ds:
+                raise ValueError("Dataset not found")
+
+        # 2. Create experiment
+        experiment = Experiment(
+            user_id=user_id,
+            dataset_id=dataset_id,
+            algorithm=algorithm,
+            hyperparameters=hyperparameters,
+            target_column=target_column,
+            status=ExperimentStatusEnum.pending,
+        )
+        experiment = await self.exp_repo.create(experiment)
+
+        # 3. Trigger Celery task
+        run_training.delay(str(experiment.id))  # type: ignore
+
+        return experiment
+
+    async def get_experiment(self, experiment_id: uuid.UUID) -> dict[str, Any]:
+        exp = await self.exp_repo.get_with_result(experiment_id)
+        if not exp:
+            raise ValueError("Experiment not found")
+
+        response: dict[str, Any] = {
+            "id": str(exp.id),
+            "status": exp.status.value if hasattr(exp.status, "value") else exp.status,
+            "algorithm": exp.algorithm,
+            "hyperparameters": exp.hyperparameters,
+            "dataset_name": exp.dataset.name if exp.dataset else None,
+            "dataset_id": str(exp.dataset_id),
+            "created_at": exp.created_at.isoformat() if exp.created_at else None,
+            "started_at": exp.started_at.isoformat() if exp.started_at else None,
+            "completed_at": exp.completed_at.isoformat() if exp.completed_at else None,
+        }
+
+        if exp.status == "completed" and exp.result:
+            response["result"] = {
+                "metrics": exp.result.metrics,
+                "confusion_matrix": exp.result.confusion_matrix_data,
+                "plots": exp.result.plot_paths,
+            }
+        elif exp.status == "failed":
+            response["error_message"] = getattr(exp, "error_message", "Unknown error")
+
+        return response
+
+    async def save_experiment(
+        self, experiment_id: uuid.UUID, user_id: uuid.UUID
+    ) -> Experiment:
+        """Associate an anonymous experiment with a user."""
+        exp = await self.exp_repo.get(experiment_id)
+        if not exp:
+            raise ValueError("Experiment not found")
+        if exp.user_id is not None:
+            if exp.user_id == user_id:
+                raise ValueError("Experiment already saved")
+            else:
+                raise ValueError("Experiment is owned by another user")
+        exp.user_id = user_id
+        # No commit needed because session auto-commits? We need to flush/commit.
+        await self.session.commit()
+        return exp

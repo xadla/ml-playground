@@ -15,7 +15,7 @@ class ExperimentRepository(BaseRepository[Experiment]):
     async def get_with_result(self, experiment_id: UUID) -> Experiment | None:
         stmt = (
             select(Experiment)
-            .options(selectinload(Experiment.result))
+            .options(selectinload(Experiment.result), selectinload(Experiment.dataset))
             .where(Experiment.id == experiment_id)
         )
         result = await self.session.execute(stmt)
@@ -26,7 +26,7 @@ class ExperimentRepository(BaseRepository[Experiment]):
     ) -> list[Experiment]:
         stmt = (
             select(Experiment)
-            .options(selectinload(Experiment.result))
+            .options(selectinload(Experiment.result), selectinload(Experiment.dataset))
             .where(Experiment.user_id == user_id)
             .order_by(Experiment.created_at.desc())
             .offset((page - 1) * limit)

@@ -31,6 +31,17 @@ class Settings(BaseSettings):
     # File uploads
     UPLOAD_DIR: str = "./uploads"
 
+    # Plot created
+    PLOT_DIR: str = "./plots"
+
+    # Celery tasks
+    SYNC_DATABASE_URL: str = (
+        "postgresql+psycopg2://postgres:postgres@localhost:5432/mlplayground"
+    )
+    SYNC_TEST_DB_URL: str = (
+        "postgresql+psycopg2://postgres:postgres@localhost:5433/mlplayground_test"
+    )
+
     # CORS
     ALLOWED_ORIGINS: list[str] = ["http://localhost:3000"]
 
