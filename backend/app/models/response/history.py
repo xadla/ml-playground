@@ -19,3 +19,7 @@ class HistoryListResponse(BaseModel):
     total: int
     page: int
     limit: int
+
+
+class CompareResponse(BaseModel):
+    experiments: list[HistoryItemResponse]
