@@ -3,6 +3,7 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
+from starlette.requests import Request
 
 from app.core.dependencies import get_current_user
 from app.db.session import get_db
@@ -28,6 +29,7 @@ def get_experiment_service(
 @router.post("", response_model=ExperimentCreateResponse, status_code=202)
 @limiter.limit("60/minute")  # type: ignore
 async def create_experiment(
+    request: Request,
     req: CreateExperimentRequest,
     service: Annotated[ExperimentService, Depends(get_experiment_service)],
     user: Annotated[User, Depends(get_current_user)],

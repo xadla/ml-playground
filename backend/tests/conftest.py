@@ -3,13 +3,14 @@ from collections.abc import AsyncGenerator
 import pytest
 from fastapi import FastAPI
 from httpx import ASGITransport, AsyncClient
-from sqlalchemy import delete
+from sqlalchemy import create_engine, delete
 from sqlalchemy.ext.asyncio import (
     AsyncEngine,
     AsyncSession,
     async_sessionmaker,
     create_async_engine,
 )
+from sqlalchemy.orm import Session, sessionmaker
 from sqlalchemy.pool import NullPool
 
 from app.config import settings
@@ -120,3 +121,36 @@ async def clean_db(db_session: AsyncSession):
     # Optionally clean up after test too
     await db_session.execute(delete(User))
     await db_session.commit()
+
+
+# Sync Engine
+SYNC_TEST_DB_URL = settings.SYNC_TEST_DB_URL
+sync_engine = create_engine(SYNC_TEST_DB_URL, echo=False)
+SyncTestSession = sessionmaker(bind=sync_engine, class_=Session)
+
+
+@pytest.fixture(scope="session", autouse=True)
+def create_sync_tables():
+    Base.metadata.create_all(sync_engine)
+    yield
+    Base.metadata.drop_all(sync_engine)
+
+
+@pytest.fixture
+def mock_celery_task(monkeypatch: pytest.MonkeyPatch):
+    """Replace run_training.delay with a synchronous execution using test DB."""
+
+    def _sync_execute(experiment_id: str):
+        from app.services.ml.runner import execute_training
+
+        db = SyncTestSession()
+        try:
+            execute_training(db, experiment_id)
+        except Exception:
+            pass
+        finally:
+            db.close()
+
+    monkeypatch.setattr(
+        "app.services.experiment_service.run_training.delay", _sync_execute
+    )
