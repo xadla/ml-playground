@@ -6,6 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from starlette.requests import Request
 
 from app.core.dependencies import get_current_user
+from app.core.exceptions import BadRequestError, ForbiddenError, NotFoundError
 from app.db.session import get_db
 from app.db.users import User
 from app.models.response.history import (
@@ -73,9 +74,9 @@ async def get_history_experiment(
             completed_at=experiment.get("completed_at"),
         )
     except ValueError as e:
-        raise HTTPException(status_code=404, detail="Experiment not found") from e
+        raise NotFoundError("Experiment not found") from e
     except PermissionError as e:
-        raise HTTPException(status_code=403, detail="Access denied") from e
+        raise ForbiddenError("Access denied") from e
     except KeyError as e:
         raise HTTPException(status_code=500, detail=f"Missing field: {e}") from e
 
@@ -91,9 +92,9 @@ async def delete_history_experiment(
     try:
         await service.delete_experiment(current_user.id, experiment_id)
     except ValueError as e:
-        raise HTTPException(status_code=404, detail="Experiment not found") from e
+        raise NotFoundError("Expermint not found") from e
     except PermissionError as e:
-        raise HTTPException(status_code=403, detail="Access denied") from e
+        raise ForbiddenError("Access denied") from e
 
 
 @router.post("/compare", response_model=CompareResponse)
@@ -109,7 +110,7 @@ async def compare_experiments(
 
         body = CompareRequest(**request_data)
     except Exception as e:
-        raise HTTPException(400, detail="Invalid request body") from e
+        raise BadRequestError("Invalid request body") from e
 
     try:
         experiments = await service.compare_experiments(
@@ -139,8 +140,8 @@ async def compare_experiments(
 
         return CompareResponse(experiments=mapped_experiments)
     except ValueError as e:
-        raise HTTPException(400, detail=str(e)) from e
+        raise BadRequestError("Invalid request body") from e
     except PermissionError as e:
-        raise HTTPException(403, detail=str(e)) from e
+        raise ForbiddenError("Access denied") from e
     except KeyError as e:
         raise HTTPException(500, detail=f"Missing field in experiment data: {e}") from e

@@ -1,11 +1,12 @@
 import uuid
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette.requests import Request
 
 from app.core.dependencies import get_current_user
+from app.core.exceptions import BadRequestError, NotFoundError
 from app.db.session import get_db
 from app.db.users import User
 from app.models.request.experiments import CreateExperimentRequest
@@ -52,7 +53,7 @@ async def create_experiment(
             "message": "Training started. Check status at GET /experiments/{experiment_id}.",
         }
     except ValueError as e:
-        raise HTTPException(400, detail=str(e)) from e
+        raise BadRequestError("Cannot create the experiment") from e
 
 
 @router.get("/{experiment_id}", response_model=ExperimentStatusResponse)
@@ -64,7 +65,7 @@ async def get_experiment(
         result = await service.get_experiment(experiment_id)
         return result
     except ValueError as e:
-        raise HTTPException(404, detail=str(e)) from e
+        raise NotFoundError("The experiment not founded") from e
 
 
 @router.post("/{experiment_id}/save", response_model=MessageResponse)
@@ -78,5 +79,5 @@ async def save_experiment(
         return {"message": "Experiment saved to your history."}
     except ValueError as e:
         if "not found" in str(e).lower():
-            raise HTTPException(404, detail=str(e)) from e
-        raise HTTPException(400, detail=str(e)) from e
+            raise NotFoundError("The experiment Not founded") from e
+        raise BadRequestError() from e

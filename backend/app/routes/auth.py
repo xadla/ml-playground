@@ -1,10 +1,17 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette.requests import Request
 
 from app.core.dependencies import get_current_user
+from app.core.exceptions import (
+    BadRequestError,
+    ConflictError,
+    GoneError,
+    NotFoundError,
+    UnauthorizedError,
+)
 from app.db.session import get_db
 from app.db.users import User
 from app.infrastructure.email import ConsoleEmailSender
@@ -52,7 +59,7 @@ async def signup(
         return result
     except ValueError as e:
         if "already registered" in str(e) or "already pending" in str(e):
-            raise HTTPException(status_code=409, detail=str(e)) from e
+            raise ConflictError("Email already registered") from e
         raise
 
 
@@ -71,7 +78,7 @@ async def login(
         result = await auth_service.login(login_request.email, login_request.password)
         return result
     except ValueError as e:
-        raise HTTPException(status_code=401, detail=str(e)) from e
+        raise UnauthorizedError() from e
 
 
 # Logout – no‑op, rate limit 5/minute (or general)
@@ -118,14 +125,14 @@ async def resend_verification(
         return result
     except ValueError as e:
         if "No pending" in str(e):
-            raise HTTPException(status_code=404, detail=str(e)) from e
+            raise NotFoundError("User not found") from e
         if "expired" in str(e):
-            raise HTTPException(status_code=410, detail=str(e)) from e
+            raise GoneError("The token is expired") from e
         if "already registered" in str(
             e
         ):  # but resend only checks pending, shouldn't happen
-            raise HTTPException(status_code=409, detail=str(e)) from e
-        raise HTTPException(status_code=400, detail=str(e)) from e
+            raise ConflictError("The User already verified") from e
+        raise BadRequestError() from e
 
 
 # Verify email – public, maybe rate limit? Not specified, so we can leave without or apply 5/min
@@ -145,7 +152,7 @@ async def verify_email(
         return result
     except ValueError as e:
         if "Invalid" in str(e):
-            raise HTTPException(status_code=404, detail=str(e)) from e
+            raise NotFoundError("Email not found") from e
         if "expired" in str(e):
-            raise HTTPException(status_code=410, detail=str(e)) from e
-        raise HTTPException(status_code=400, detail=str(e)) from e
+            raise GoneError("Token is expired") from e
+        raise BadRequestError() from e
