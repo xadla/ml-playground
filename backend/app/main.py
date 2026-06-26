@@ -1,10 +1,18 @@
 from fastapi import FastAPI, Request
+from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from slowapi.errors import RateLimitExceeded
 from slowapi.middleware import SlowAPIMiddleware
+from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from app.config import settings
+from app.core.error_handlers import (
+    app_error_handler,
+    http_exception_handler,
+    validation_exception_handler,
+)
+from app.core.exceptions import AppError
 from app.routes.auth import router as auth_router
 from app.routes.datasets import router as datasets_router
 from app.routes.experiments import router as experiments_router
@@ -61,6 +69,12 @@ def create_app() -> FastAPI:
     app.include_router(experiments_router, prefix=settings.API_V1_PREFIX)
     app.include_router(history_router, prefix=settings.API_V1_PREFIX)
     app.include_router(plots_router, prefix=settings.API_V1_PREFIX)
+
+    # Error handlers
+    app.add_exception_handler(AppError, app_error_handler)
+    app.add_exception_handler(StarletteHTTPException, http_exception_handler)
+    app.add_exception_handler(RequestValidationError, validation_exception_handler)
+    app.add_exception_handler(Exception, generic_exception_handler)
 
     return app
 
