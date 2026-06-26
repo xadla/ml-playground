@@ -1,9 +1,10 @@
 from typing import Annotated, Any
 
-from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile, status
+from fastapi import APIRouter, Depends, File, Form, UploadFile, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette.requests import Request
 
+from app.core.exceptions import BadRequestError, ValidationError
 from app.db.session import get_db
 from app.models.response.datasets import (
     BuiltinDatasetsListResponse,
@@ -40,7 +41,7 @@ async def upload_dataset(
     name: str | None = Form(None),  # noqa: B008
 ) -> dict[str, Any]:
     if file.filename is None:
-        raise HTTPException(status_code=400, detail="No file provided")
+        raise BadRequestError("The filename doesn't provided")
 
     # Validate content type hint
     if (
@@ -48,15 +49,13 @@ async def upload_dataset(
         and "csv" not in file.content_type
         and "text" not in file.content_type
     ):
-        raise HTTPException(status_code=400, detail="File must be a CSV")
+        raise BadRequestError("Content type file error")
 
     # Read file content
     try:
         contents = await file.read()
     except Exception as e:
-        raise HTTPException(
-            status_code=400, detail="Failed to read uploaded file"
-        ) from e
+        raise BadRequestError("Cannot read the file") from e
 
     try:
         dataset, preview = await service.upload_csv(
@@ -64,7 +63,7 @@ async def upload_dataset(
             filename=name or file.filename,
         )
     except ValueError as e:
-        raise HTTPException(status_code=422, detail=str(e)) from e
+        raise ValidationError("Cannot validate the uploaded file") from e
 
     return {
         "id": str(dataset.id),
