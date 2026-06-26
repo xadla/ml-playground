@@ -9,6 +9,7 @@ from app.routes.auth import router as auth_router
 from app.routes.datasets import router as datasets_router
 from app.routes.experiments import router as experiments_router
 from app.routes.health import router as health_router
+from app.routes.history import router as history_router
 from app.utils.rate_limit import limiter
 
 
@@ -57,6 +58,7 @@ def create_app() -> FastAPI:
     app.include_router(auth_router, prefix=settings.API_V1_PREFIX)
     app.include_router(datasets_router, prefix=settings.API_V1_PREFIX)
     app.include_router(experiments_router, prefix=settings.API_V1_PREFIX)
+    app.include_router(history_router, prefix=settings.API_V1_PREFIX)
 
     return app
 
