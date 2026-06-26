@@ -15,9 +15,13 @@ from sqlalchemy.pool import NullPool
 
 from app.config import settings
 from app.core.security import create_access_token, hash_password
+from app.db.datasets import Dataset
+from app.db.experiments import Experiment
 from app.db.models import Base
+from app.db.repositories import DatasetRepository, ExperimentRepository
 from app.db.users import User
 from app.main import create_app
+from app.models.domain.enums import DatasetTypeEnum
 
 
 @pytest.fixture(scope="session")
@@ -30,12 +34,12 @@ def engine() -> AsyncEngine:
     )
 
 
-@pytest.fixture(scope="session")
-async def create_tables(engine: AsyncEngine) -> AsyncGenerator[AsyncSession, None]:
+@pytest.fixture(scope="session", autouse=True)
+async def create_tables(engine: AsyncEngine) -> AsyncGenerator[None, None]:
     """Create all tables before tests run, drop them after."""
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
-    yield  # type: ignore
+    yield
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.drop_all)
 
@@ -43,7 +47,7 @@ async def create_tables(engine: AsyncEngine) -> AsyncGenerator[AsyncSession, Non
 @pytest.fixture
 async def db_session(
     engine: AsyncEngine,
-    create_tables: AsyncGenerator[AsyncSession, None],
+    create_tables: AsyncGenerator[None, None],
 ) -> AsyncGenerator[AsyncSession, None]:
     """Create a fresh database session for each test."""
     async_session = async_sessionmaker(
@@ -73,9 +77,6 @@ def app(db_session: AsyncSession) -> FastAPI:
 
     app.dependency_overrides[get_db] = override_get_db
 
-    # app.state.limiter = limiter
-    # app.add_exception_handler(429, _rate_limit_exceeded_handler)
-
     return app
 
 
@@ -97,33 +98,70 @@ async def test_user(db_session: AsyncSession) -> User:
         email="testuser@example.com",
         hashed_password=hash_password("testpassword"),
     )
-    await repo.create(user)
-    return user
+    created_user = await repo.create(user)
+    await db_session.commit()  # IMPORTANT: Commit the user to the database
+    return created_user
 
 
 @pytest.fixture
 async def auth_client(
     client: AsyncClient,
     test_user: User,
-) -> AsyncClient:
+) -> AsyncGenerator[AsyncClient, None]:
     """Authenticated client for protected routes."""
     token = create_access_token({"sub": str(test_user.id)})
     client.headers["Authorization"] = f"Bearer {token}"
-    return client
+    yield client  # Yield to maintain the client context
 
 
 @pytest.fixture(autouse=True)
 async def clean_db(db_session: AsyncSession):
     """Clean the users table before each test."""
+    # Clean before test
     await db_session.execute(delete(User))
+    await db_session.execute(delete(Dataset))
+    await db_session.execute(delete(Experiment))
     await db_session.commit()
     yield
-    # Optionally clean up after test too
+    # Clean after test
     await db_session.execute(delete(User))
+    await db_session.execute(delete(Dataset))
+    await db_session.execute(delete(Experiment))
     await db_session.commit()
 
 
-# Sync Engine
+@pytest.fixture
+async def test_user_with_experiments(db_session: AsyncSession, test_user: User) -> User:
+    """Create a test user with experiments."""
+    ds_repo = DatasetRepository(db_session)
+    ds = Dataset(
+        name="test_ds",
+        type=DatasetTypeEnum.canvas,
+        data={"points": [{"x": 1, "y": 2, "class": "A"}]},
+        row_count=1,
+        column_names=["x", "y", "class"],
+        is_temporary=True,
+    )
+    await ds_repo.create(ds)
+    await db_session.commit()  # Commit dataset
+
+    exp_repo = ExperimentRepository(db_session)
+    for _ in range(3):
+        exp = Experiment(
+            user_id=test_user.id,
+            dataset_id=ds.id,
+            algorithm="knn",
+            hyperparameters={"k": 3},
+            target_column="class",
+            status="completed",
+        )
+        await exp_repo.create(exp)
+
+    await db_session.commit()  # Commit all experiments
+    return test_user
+
+
+# Sync Engine for Celery mock
 SYNC_TEST_DB_URL = settings.SYNC_TEST_DB_URL
 sync_engine = create_engine(SYNC_TEST_DB_URL, echo=False)
 SyncTestSession = sessionmaker(bind=sync_engine, class_=Session)
@@ -131,6 +169,7 @@ SyncTestSession = sessionmaker(bind=sync_engine, class_=Session)
 
 @pytest.fixture(scope="session", autouse=True)
 def create_sync_tables():
+    """Create sync tables for Celery mock."""
     Base.metadata.create_all(sync_engine)
     yield
     Base.metadata.drop_all(sync_engine)
