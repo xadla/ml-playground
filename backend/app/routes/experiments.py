@@ -11,6 +11,7 @@ from app.db.session import get_db
 from app.db.users import User
 from app.models.request.experiments import CreateExperimentRequest
 from app.models.response.auth import MessageResponse
+from app.models.response.error import ErrorResponse
 from app.models.response.experiments import (
     ExperimentCreateResponse,
     ExperimentStatusResponse,
@@ -27,7 +28,17 @@ def get_experiment_service(
     return ExperimentService(db)
 
 
-@router.post("", response_model=ExperimentCreateResponse, status_code=202)
+@router.post(
+    "",
+    response_model=ExperimentCreateResponse,
+    status_code=202,
+    responses={
+        401: {
+            "model": ErrorResponse,
+            "description": "Not Authenticated",
+        }
+    },
+)
 @limiter.limit("60/minute")  # type: ignore
 async def create_experiment(
     request: Request,
@@ -68,7 +79,11 @@ async def get_experiment(
         raise NotFoundError("The experiment not founded") from e
 
 
-@router.post("/{experiment_id}/save", response_model=MessageResponse)
+@router.post(
+    "/{experiment_id}/save",
+    response_model=MessageResponse,
+    responses={401: {"model": ErrorResponse, "description": "Not Authenticated"}},
+)
 async def save_experiment(
     experiment_id: uuid.UUID,
     service: Annotated[ExperimentService, Depends(get_experiment_service)],

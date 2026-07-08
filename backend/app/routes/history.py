@@ -9,6 +9,7 @@ from app.core.dependencies import get_current_user
 from app.core.exceptions import BadRequestError, ForbiddenError, NotFoundError
 from app.db.session import get_db
 from app.db.users import User
+from app.models.response.error import ErrorResponse
 from app.models.response.history import (
     CompareResponse,
     HistoryItemResponse,
@@ -24,7 +25,16 @@ def get_history_service(db: Annotated[AsyncSession, Depends(get_db)]) -> History
     return HistoryService(db)
 
 
-@router.get("", response_model=HistoryListResponse)
+@router.get(
+    "",
+    response_model=HistoryListResponse,
+    responses={
+        401: {
+            "model": ErrorResponse,
+            "description": "Not Authenticated",
+        }
+    },
+)
 @limiter.limit("60/minute")  # type: ignore
 async def list_history(
     request: Request,
@@ -45,7 +55,16 @@ async def list_history(
     return result
 
 
-@router.get("/{experiment_id}", response_model=HistoryItemResponse)
+@router.get(
+    "/{experiment_id}",
+    response_model=HistoryItemResponse,
+    responses={
+        401: {
+            "model": ErrorResponse,
+            "description": "Not Authenticated",
+        }
+    },
+)
 @limiter.limit("60/minute")  # type: ignore
 async def get_history_experiment(
     request: Request,
@@ -81,7 +100,16 @@ async def get_history_experiment(
         raise HTTPException(status_code=500, detail=f"Missing field: {e}") from e
 
 
-@router.delete("/{experiment_id}", status_code=204)
+@router.delete(
+    "/{experiment_id}",
+    status_code=204,
+    responses={
+        401: {
+            "model": ErrorResponse,
+            "description": "Not Authenticated",
+        }
+    },
+)
 @limiter.limit("60/minute")  # type: ignore
 async def delete_history_experiment(
     request: Request,
@@ -97,7 +125,17 @@ async def delete_history_experiment(
         raise ForbiddenError("Access denied") from e
 
 
-@router.post("/compare", response_model=CompareResponse)
+@router.post(
+    "/compare",
+    response_model=CompareResponse,
+    responses={
+        401: {
+            "model": ErrorResponse,
+            "description": "Not Authenticated",
+        },
+        400: {"model": ErrorResponse, "description": "Not Authenticated"},
+    },
+)
 @limiter.limit("60/minute")  # type: ignore
 async def compare_experiments(
     request: Request,

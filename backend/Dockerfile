@@ -1,12 +1,9 @@
-FROM python:3.11-alpine
+FROM python:3.11-slim
 
 WORKDIR /app
 
-# Install build dependencies needed for uvicorn
-RUN apk add --no-cache gcc musl-dev libffi-dev
-
 COPY requirements.txt .
-RUN pip install --no-cache-dir -i https://mirror-pypi.runflare.com/simple -r requirements.txt
+RUN pip install --no-cache -i https://mirror.abrha.net/repository/pypi/simple -r requirements.txt
 
 COPY ./app ./app
 

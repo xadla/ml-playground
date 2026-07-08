@@ -1,7 +1,7 @@
 repos:
   # Python linting & formatting
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.10.0
+    rev: v0.15.20
     hooks:
       - id: ruff
         name: ruff-lint-backend
@@ -13,7 +13,7 @@ repos:
 
   # Python type checking
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.15.0
+    rev: v1.17.0
     hooks:
       - id: mypy
         args: [--python-version=3.11]
@@ -42,6 +42,8 @@ repos:
           - matplotlib>=3.9
           - numpy>=1.26
           - pillow>=10.0
+          - schemathesis>=4.0.0
+          - structlog>=20.1.0
         # No args — reads from [tool.mypy] in pyproject.toml
         files: ^backend/.*\.py$
 
@@ -65,7 +67,7 @@ repos:
 
   # General file checks
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v5.0.0
+    rev: v6.0.0
     hooks:
       - id: trailing-whitespace
       - id: end-of-file-fixer

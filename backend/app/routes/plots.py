@@ -5,11 +5,15 @@ from fastapi.responses import FileResponse
 
 from app.config import settings
 from app.core.exceptions import NotFoundError
+from app.models.response.error import ErrorResponse
 
 router = APIRouter(prefix="/plots", tags=["plots"])
 
 
-@router.get("/{filename}")
+@router.get(
+    "/{filename}",
+    responses={404: {"model": ErrorResponse, "description": "Not Authenticated"}},
+)
 async def get_plot(filename: str):
     """Serve a generated plot image (PNG)."""
     # Security: only allow .png files
