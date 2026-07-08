@@ -27,6 +27,7 @@ from app.models.response.auth import (
     UserResponse,
     VerifyEmailResponse,
 )
+from app.models.response.error import ErrorResponse
 from app.services.auth_service import AuthService
 from app.utils.rate_limit import get_email_key, limiter
 
@@ -45,6 +46,12 @@ def get_auth_service(db: Annotated[AsyncSession, Depends(get_db)]) -> AuthServic
     "/signup",
     response_model=SignupResponse,
     status_code=status.HTTP_202_ACCEPTED,
+    responses={
+        409: {
+            "model": ErrorResponse,
+            "description": "Not Authenticated",
+        }
+    },
 )
 @limiter.limit("5/minute")  # type: ignore
 async def signup(
@@ -85,6 +92,12 @@ async def login(
 @router.post(
     "/logout",
     response_model=MessageResponse,
+    responses={
+        401: {
+            "model": ErrorResponse,
+            "description": "Not Authenticated",
+        }
+    },
 )
 @limiter.limit("5/minute")  # type: ignore
 async def logout(
@@ -99,6 +112,12 @@ async def logout(
 @router.get(
     "/me",
     response_model=UserResponse,
+    responses={
+        401: {
+            "model": ErrorResponse,
+            "description": "Not Authenticated",
+        }
+    },
 )
 async def get_me(
     current_user: Annotated[User, Depends(get_current_user)],
