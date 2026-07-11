@@ -13,12 +13,14 @@ from app.core.error_handlers import (
     validation_exception_handler,
 )
 from app.core.exceptions import AppError
+from app.core.middleware import RequestContextMiddleware
 from app.routes.auth import router as auth_router
 from app.routes.datasets import router as datasets_router
 from app.routes.experiments import router as experiments_router
 from app.routes.health import router as health_router
 from app.routes.history import router as history_router
 from app.routes.plots import router as plots_router
+from app.utils.logging_config import setup_logging
 from app.utils.rate_limit import limiter
 
 
@@ -29,6 +31,10 @@ def create_app() -> FastAPI:
         docs_url=f"{settings.API_V1_PREFIX}/docs",
         redoc_url=f"{settings.API_V1_PREFIX}/redoc",
     )
+
+    # Logging
+    setup_logging()
+    app.add_middleware(RequestContextMiddleware)
 
     # Rate limiter
     app.state.limiter = limiter
