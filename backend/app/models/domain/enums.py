@@ -1,7 +1,7 @@
-from enum import Enum
+from enum import StrEnum
 
 
-class AlgorithmEnum(str, Enum):
+class AlgorithmEnum(StrEnum):
     knn = "knn"
     logistic_regression = "logistic_regression"
     random_forest = "random_forest"
@@ -9,13 +9,13 @@ class AlgorithmEnum(str, Enum):
     svm = "svm"
 
 
-class DatasetTypeEnum(str, Enum):
+class DatasetTypeEnum(StrEnum):
     canvas = "canvas"
     uploaded = "uploaded"
     builtin = "builtin"
 
 
-class ExperimentStatusEnum(str, Enum):
+class ExperimentStatusEnum(StrEnum):
     pending = "pending"
     running = "running"
     completed = "completed"
