@@ -4,6 +4,7 @@ import uuid
 from io import StringIO
 from typing import Any
 
+import structlog
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import settings
@@ -34,9 +35,14 @@ class DatasetService:
     def __init__(self, session: AsyncSession):
         self.repo = DatasetRepository(session)
         self.session = session
+        self.logger = structlog.get_logger(__name__)
 
     def list_builtin_datasets(self) -> list[dict[str, Any]]:
         """Return the list of built‑in datasets (no DB required)."""
+        self.logger.debug(
+            "dataset.list_builtin",
+            count=len(BUILTIN_DATASETS),
+        )
         return BUILTIN_DATASETS
 
     async def upload_csv(
@@ -45,48 +51,95 @@ class DatasetService:
         filename: str,
         user_id: uuid.UUID | None = None,
     ) -> tuple[Dataset, list[dict[str, Any]]]:
-        # 1. Check file size (max 5 MB)
-        max_size = 5 * 1024 * 1024  # 5 MB
-        if len(file_content) > max_size:
-            raise ValueError("File size exceeds 5 MB limit")
-
-        # 2. Parse CSV to extract metadata and preview
-        try:
-            content_str = file_content.decode("utf-8")
-        except UnicodeDecodeError as err:
-            raise ValueError("File is not a valid UTF-8 CSV") from err
-
-        try:
-            reader = csv.DictReader(StringIO(content_str))
-            rows = list(reader)
-        except csv.Error as err:
-            raise ValueError("Invalid CSV format") from err
-
-        if not rows:
-            raise ValueError("CSV file is empty")
-
-        column_names = list(rows[0].keys())
-        row_count = len(rows)
-        preview = rows[:5]  # first 5 rows
-
-        # 3. Save file to disk
-        file_ext = os.path.splitext(filename)[1] or ".csv"
-        stored_name = f"{uuid.uuid4()}{file_ext}"
-        file_path = os.path.join(settings.UPLOAD_DIR, stored_name)
-        os.makedirs(settings.UPLOAD_DIR, exist_ok=True)
-        with open(file_path, "wb") as f:
-            f.write(file_content)
-
-        # 4. Create database record
-        dataset = Dataset(
-            user_id=user_id,
-            name=filename,
-            type=DatasetTypeEnum.uploaded,
-            file_path=file_path,
-            original_filename=filename,
-            row_count=row_count,
-            column_names=column_names,
-            is_temporary=True,  # anonymous uploads are temporary
+        self.logger.info(
+            "dataset.upload.start",
+            filename=filename,
+            file_size_bytes=len(file_content),
+            user_id=str(user_id) if user_id else None,
         )
-        dataset = await self.repo.create(dataset)
-        return dataset, preview
+
+        try:
+            # 1. Check file size (max 5 MB)
+            max_size = 5 * 1024 * 1024  # 5 MB
+            if len(file_content) > max_size:
+                self.logger.warning(
+                    "dataset.upload.size_exceeds",
+                    filename=filename,
+                    file_size_bytes=len(file_content),
+                    max_size_bytes=max_size,
+                )
+                raise ValueError("File size exceeds 5 MB limit")
+
+            # 2. Parse CSV to extract metadata and preview
+            try:
+                content_str = file_content.decode("utf-8")
+            except UnicodeDecodeError as err:
+                self.logger.warning(
+                    "dataset.upload.invalid_encoding",
+                    filename=filename,
+                )
+                raise ValueError("File is not a valid UTF-8 CSV") from err
+
+            try:
+                reader = csv.DictReader(StringIO(content_str))
+                rows = list(reader)
+            except csv.Error as err:
+                self.logger.warning(
+                    "dataset.upload.invalid_csv",
+                    filename=filename,
+                )
+                raise ValueError("Invalid CSV format") from err
+
+            if not rows:
+                self.logger.warning(
+                    "dataset.upload.empty_csv",
+                    filename=filename,
+                )
+                raise ValueError("CSV file is empty")
+
+            column_names = list(rows[0].keys())
+            row_count = len(rows)
+            preview = rows[:5]  # first 5 rows
+
+            # 3. Save file to disk
+            file_ext = os.path.splitext(filename)[1] or ".csv"
+            stored_name = f"{uuid.uuid4()}{file_ext}"
+            file_path = os.path.join(settings.UPLOAD_DIR, stored_name)
+            os.makedirs(settings.UPLOAD_DIR, exist_ok=True)
+            with open(file_path, "wb") as f:
+                f.write(file_content)
+
+            # 4. Create database record
+            dataset = Dataset(
+                user_id=user_id,
+                name=filename,
+                type=DatasetTypeEnum.uploaded,
+                file_path=file_path,
+                original_filename=filename,
+                row_count=row_count,
+                column_names=column_names,
+                is_temporary=True,  # anonymous uploads are temporary
+            )
+            dataset = await self.repo.create(dataset)
+
+            self.logger.info(
+                "dataset.upload.success",
+                dataset_id=str(dataset.id),
+                filename=filename,
+                row_count=row_count,
+                column_count=len(column_names),
+                user_id=str(user_id) if user_id else None,
+            )
+
+            return dataset, preview
+
+        except ValueError:
+            raise
+        except Exception as e:
+            self.logger.error(
+                "dataset.upload.failed",
+                filename=filename,
+                error=str(e),
+                exc_info=True,
+            )
+            raise
