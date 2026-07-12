@@ -40,7 +40,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const signupAction = useCallback(async (email: string, password: string) => {
-    await authService.signup({ email, password });
+    return await authService.signup({ email, password });
   }, []);
 
   const logoutAction = useCallback(() => {

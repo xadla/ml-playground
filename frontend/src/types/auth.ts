@@ -48,7 +48,7 @@ export interface AuthState {
   isLoading: boolean;
   isAuthenticated: boolean;
   loginAction: (email: string, password: string) => Promise<void>;
-  signupAction: (email: string, password: string) => Promise<void>;
+  signupAction: (email: string, password: string) => Promise<SignupResponse>;
   logoutAction: () => void;
   setTokenAndUser: (token: string, user: UserProfile) => void;
 }
