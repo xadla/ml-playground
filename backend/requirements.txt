@@ -165,7 +165,7 @@ pluggy==1.6.0
     # via pytest
 prompt-toolkit==3.0.52
     # via click-repl
-psycopg2-binary==2.9
+psycopg2-binary==2.9.12
     # via ml-playground-backend (pyproject.toml)
 pyasn1==0.6.3
     # via
@@ -250,7 +250,6 @@ six==1.17.0
     #   limits
     #   python-dateutil
     #   rfc3339-validator
-    #   structlog
 slowapi==0.1.6
     # via ml-playground-backend (pyproject.toml)
 sortedcontainers==2.4.0
@@ -265,7 +264,7 @@ starlette==0.38.6
     #   starlette-testclient
 starlette-testclient==0.4.1
     # via schemathesis
-structlog==20.1.0
+structlog==26.1.0
     # via ml-playground-backend (pyproject.toml)
 threadpoolctl==3.6.0
     # via scikit-learn
