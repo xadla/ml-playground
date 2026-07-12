@@ -41,3 +41,14 @@ export interface ApiError {
     details?: { field: string; message: string }[];
   };
 }
+
+export interface AuthState {
+  user: UserProfile | null;
+  token: string | null;
+  isLoading: boolean;
+  isAuthenticated: boolean;
+  loginAction: (email: string, password: string) => Promise<void>;
+  signupAction: (email: string, password: string) => Promise<void>;
+  logoutAction: () => void;
+  setTokenAndUser: (token: string, user: UserProfile) => void;
+}
