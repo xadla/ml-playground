@@ -123,7 +123,7 @@ class AuthService:
                     pending_id=str(pending.id),
                     expires_at=pending.expires_at.isoformat(),
                 )
-                await self.pending_repo.delete(pending.id)  # type: ignore
+                await self.pending_repo.delete(pending)
                 raise ValueError("Verification token has expired")
 
             # Create real user
@@ -134,7 +134,7 @@ class AuthService:
             await self.user_repo.create(user)
 
             # Delete pending registration
-            await self.pending_repo.delete(pending.id)  # type: ignore
+            await self.pending_repo.delete(pending)
 
             # Generate access token
             access_token = create_access_token(data={"sub": str(user.id)})
