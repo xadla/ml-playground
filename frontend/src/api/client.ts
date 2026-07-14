@@ -30,12 +30,3 @@ api.interceptors.response.use(
 );
 
 export default api;
-
-// Typed helper functions (optional, you can just use api.get/post)
-export function get<T>(url: string, params?: unknown) {
-  return api.get<T>(url, { params });
-}
-
-export function post<T>(url: string, data?: unknown) {
-  return api.post<T>(url, data);
-}
