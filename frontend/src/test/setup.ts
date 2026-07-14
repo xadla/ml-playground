@@ -28,4 +28,5 @@ Object.defineProperty(window, 'localStorage', {
 });
 
 // Mock console.error to keep test output clean
+// eslint-disable-next-line no-console
 console.error = vi.fn();
