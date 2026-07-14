@@ -72,7 +72,7 @@ export default function NewExperiment() {
     });
   };
 
-  const selectedAlgo = ALGORITHMS.find((a) => a.value === algorithm)!;
+  // const selectedAlgo = ALGORITHMS.find((a) => a.value === algorithm)!;
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
@@ -239,7 +239,7 @@ export default function NewExperiment() {
             <button
               onClick={handleSubmit}
               disabled={points.length === 0 || mutation.isPending}
-              className="w-full py-3.5 px-6 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-2xl font-bold text-lg disabled:opacity-50 disabled:cursor-not-allowed hover:from-indigo-700 hover:to-purple-700 transition-all transform active:scale-[0.98] shadow-lg shadow-indigo-500/25 flex items-center justify-center gap-2"
+              className="w-full py-3.5 px-6 bg-linear-to-r from-indigo-600 to-purple-600 text-white rounded-2xl font-bold text-lg disabled:opacity-50 disabled:cursor-not-allowed hover:from-indigo-700 hover:to-purple-700 transition-all transform active:scale-[0.98] shadow-lg shadow-indigo-500/25 flex items-center justify-center gap-2"
             >
               {mutation.isPending ? (
                 <>
