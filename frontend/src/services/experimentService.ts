@@ -3,7 +3,7 @@ import type {
   CreateExperimentRequest,
   ExperimentCreateResponse,
   ExperimentStatus,
-} from '@/types/experiments';
+} from '@/types/experiment';
 import type { MessageResponse } from '@/types/auth';
 
 export async function createExperiment(

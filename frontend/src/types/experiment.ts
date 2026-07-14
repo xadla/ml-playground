@@ -1,3 +1,5 @@
+export type Algorithm = 'knn' | 'logistic_regression';
+
 export interface CanvasPoint {
   x: number;
   y: number;
