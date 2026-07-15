@@ -12,6 +12,7 @@ services:
     volumes:
       # Mount the app folder for hot reload
       - ./backend/app:/app/app
+      - plots_data:/app/plots
     environment:
       - DATABASE_URL=postgresql+asyncpg://postgres:postgres@db:5432/mlplayground
       - REDIS_URL=redis://redis:6379/0
@@ -37,6 +38,7 @@ services:
     command: celery -A app.infrastructure.celery_app worker --loglevel=info
     volumes:
       - ./backend/app:/app/app
+      - plots_data:/app/plots
     environment:
       - DATABASE_URL=postgresql+asyncpg://postgres:postgres@db:5432/mlplayground
       - REDIS_URL=redis://redis:6379/0
@@ -110,6 +112,7 @@ services:
 volumes:
   postgres_data:
   redis_data:
+  plots_data:
 
 networks:
   ml-network:

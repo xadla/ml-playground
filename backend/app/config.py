@@ -6,6 +6,7 @@ class Settings(BaseSettings):
     APP_NAME: str = "ML Playground"
     DEBUG: bool = False
     API_V1_PREFIX: str = "/api/v1"
+    BASE_URL: str = "http://localhost:8000"
 
     # Database
     DATABASE_URL: str = (
