@@ -41,7 +41,7 @@ export default function NewExperiment() {
   const mutation = useMutation({
     mutationFn: createExperiment,
     onSuccess: (data) => {
-      navigate(`/experiments/${data.id}`);
+      navigate(`/experiments/${data.experiment_id}`);
     },
   });
 
@@ -58,7 +58,6 @@ export default function NewExperiment() {
   // Validate and submit
   const handleSubmit = () => {
     if (points.length === 0) {
-      // Optional: show an inline error instead of disabling button
       return;
     }
     const processedHyperparams: Record<string, number | string> = {};
@@ -66,13 +65,19 @@ export default function NewExperiment() {
       processedHyperparams[key] = isNaN(Number(val)) ? val : Number(val);
     }
     mutation.mutate({
-      dataset: { points },
+      dataset: {
+        type: 'canvas',
+        name: 'Canvas Dataset',
+        points: points,
+        feature_names: ['x', 'y'],
+      },
       algorithm,
       hyperparameters: processedHyperparams,
+      target_column: 'class',
     });
   };
 
-  // const selectedAlgo = ALGORITHMS.find((a) => a.value === algorithm)!;
+  const selectedAlgo = ALGORITHMS.find((a) => a.value === algorithm)!;
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950">

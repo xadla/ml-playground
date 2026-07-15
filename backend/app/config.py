@@ -36,7 +36,7 @@ class Settings(BaseSettings):
 
     # Celery tasks
     SYNC_DATABASE_URL: str = (
-        "postgresql+psycopg2://postgres:postgres@localhost:5432/mlplayground"
+        "postgresql+psycopg2://postgres:postgres@db:5432/mlplayground"
     )
     SYNC_TEST_DB_URL: str = (
         "postgresql+psycopg2://postgres:postgres@localhost:5433/mlplayground_test"

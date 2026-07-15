@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useRef } from 'react';
 import { Stage, Layer, Circle, Text, Line, Rect } from 'react-konva';
 import type Konva from 'konva';
 
@@ -18,8 +18,9 @@ const CLASS_COLORS: Record<string, string> = {
   E: '#8b5cf6', // violet
 };
 
-const CANVAS_WIDTH = 520;
-const CANVAS_HEIGHT = 380;
+// Bigger base size – canvas scales down responsively
+const BASE_WIDTH = 640;
+const BASE_HEIGHT = 420;
 const POINT_RADIUS = 7;
 
 interface Props {
@@ -29,7 +30,6 @@ interface Props {
   onClassChange: (cls: string) => void;
 }
 
-// ----- Component -----
 export default function DatasetCanvas({
   points,
   onPointsChange,
@@ -37,43 +37,39 @@ export default function DatasetCanvas({
   onClassChange,
 }: Props) {
   const stageRef = useRef<Konva.Stage>(null);
-  const [isHovering, setIsHovering] = useState(false);
+  const hasPoints = points.length > 0;
 
   const handleCanvasClick = (e: Konva.KonvaEventObject<MouseEvent>) => {
     const stage = e.target.getStage();
     const point = stage?.getPointerPosition();
     if (!point) return;
-    // Clamp inside canvas boundaries with a small margin
-    const x = Math.max(POINT_RADIUS, Math.min(point.x, CANVAS_WIDTH - POINT_RADIUS));
-    const y = Math.max(POINT_RADIUS, Math.min(point.y, CANVAS_HEIGHT - POINT_RADIUS));
+    const x = Math.max(POINT_RADIUS, Math.min(point.x, BASE_WIDTH - POINT_RADIUS));
+    const y = Math.max(POINT_RADIUS, Math.min(point.y, BASE_HEIGHT - POINT_RADIUS));
     onPointsChange([...points, { x, y, class: selectedClass }]);
   };
 
   const handleUndo = () => onPointsChange(points.slice(0, -1));
   const handleClear = () => onPointsChange([]);
 
-  // ----- Tooltip for empty state -----
-  const hasPoints = points.length > 0;
-
-  // ----- Grid lines (reusable) -----
+  // Grid lines
   const gridLines = [];
   const step = 40;
-  for (let i = step; i < CANVAS_WIDTH; i += step) {
+  for (let i = step; i < BASE_WIDTH; i += step) {
     gridLines.push(
       <Line
         key={`v-${i}`}
-        points={[i, 0, i, CANVAS_HEIGHT]}
+        points={[i, 0, i, BASE_HEIGHT]}
         stroke="#e0e7ff"
         strokeWidth={0.5}
         dash={[4, 6]}
       />
     );
   }
-  for (let j = step; j < CANVAS_HEIGHT; j += step) {
+  for (let j = step; j < BASE_HEIGHT; j += step) {
     gridLines.push(
       <Line
         key={`h-${j}`}
-        points={[0, j, CANVAS_WIDTH, j]}
+        points={[0, j, BASE_WIDTH, j]}
         stroke="#e0e7ff"
         strokeWidth={0.5}
         dash={[4, 6]}
@@ -83,7 +79,7 @@ export default function DatasetCanvas({
 
   return (
     <div className="space-y-5">
-      {/* Class selector – styled as pill buttons */}
+      {/* Class selector */}
       <div className="flex items-center gap-2 flex-wrap">
         <span className="text-sm font-medium text-gray-600 dark:text-gray-400 mr-1">Class:</span>
         {Object.keys(CLASS_COLORS).map((cls) => (
@@ -104,87 +100,89 @@ export default function DatasetCanvas({
         ))}
       </div>
 
-      {/* Canvas area */}
-      <div
-        className="relative rounded-2xl overflow-hidden border border-gray-200 dark:border-gray-700 shadow-lg bg-white dark:bg-gray-900"
-        style={{ maxWidth: CANVAS_WIDTH + 2 }}
-        onMouseEnter={() => setIsHovering(true)}
-        onMouseLeave={() => setIsHovering(false)}
-      >
-        <Stage
-          width={CANVAS_WIDTH}
-          height={CANVAS_HEIGHT}
-          onClick={handleCanvasClick}
-          ref={stageRef}
-          style={{ cursor: 'crosshair', display: 'block' }}
-        >
-          {/* Background gradient */}
-          <Layer>
-            <Rect
-              x={0}
-              y={0}
-              width={CANVAS_WIDTH}
-              height={CANVAS_HEIGHT}
-              fillLinearGradientStartPoint={{ x: 0, y: 0 }}
-              fillLinearGradientEndPoint={{ x: CANVAS_WIDTH, y: CANVAS_HEIGHT }}
-              fillLinearGradientColorStops={[0, '#f9fafb', 1, '#f3f4f6']}
-            />
-            {gridLines}
-          </Layer>
+      {/* Canvas container – responsive width, fixed aspect ratio */}
+      <div className="relative w-full max-w-[640px] mx-auto">
+        <div className="rounded-2xl overflow-hidden border border-gray-200 dark:border-gray-700 shadow-lg bg-white dark:bg-gray-900">
+          <Stage
+            width={BASE_WIDTH}
+            height={BASE_HEIGHT}
+            onClick={handleCanvasClick}
+            ref={stageRef}
+            style={{
+              cursor: 'crosshair',
+              display: 'block',
+              width: '100%',
+              height: 'auto',
+            }}
+          >
+            {/* Background + grid */}
+            <Layer>
+              <Rect
+                x={0}
+                y={0}
+                width={BASE_WIDTH}
+                height={BASE_HEIGHT}
+                fillLinearGradientStartPoint={{ x: 0, y: 0 }}
+                fillLinearGradientEndPoint={{ x: BASE_WIDTH, y: BASE_HEIGHT }}
+                fillLinearGradientColorStops={[0, '#f9fafb', 1, '#f3f4f6']}
+              />
+              {gridLines}
+            </Layer>
 
-          {/* Points and labels */}
-          <Layer>
-            {!hasPoints && (
+            {/* Points + empty prompt */}
+            <Layer>
+              {!hasPoints && (
+                <Text
+                  x={BASE_WIDTH / 2 - 80}
+                  y={BASE_HEIGHT / 2 - 10}
+                  text="Click to add a point"
+                  fontSize={14}
+                  fill="#9ca3af"
+                  fontStyle="italic"
+                />
+              )}
+              {points.map((p, i) => (
+                <Circle
+                  key={i}
+                  x={p.x}
+                  y={p.y}
+                  radius={POINT_RADIUS}
+                  fill={CLASS_COLORS[p.class] || '#6b7280'}
+                  stroke="#ffffff"
+                  strokeWidth={2}
+                  shadowColor="rgba(0,0,0,0.15)"
+                  shadowBlur={4}
+                  shadowOffset={{ x: 0, y: 2 }}
+                />
+              ))}
+            </Layer>
+
+            {/* Axis labels (optional – remove if you prefer) */}
+            <Layer>
               <Text
-                x={CANVAS_WIDTH / 2 - 80}
-                y={CANVAS_HEIGHT / 2 - 10}
-                text="Click to add a point"
-                fontSize={14}
+                x={12}
+                y={BASE_HEIGHT - 18}
+                text="Feature 1 →"
+                fontSize={11}
                 fill="#9ca3af"
                 fontStyle="italic"
               />
-            )}
-            {points.map((p, i) => (
-              <Circle
-                key={i}
-                x={p.x}
-                y={p.y}
-                radius={POINT_RADIUS}
-                fill={CLASS_COLORS[p.class] || '#6b7280'}
-                stroke="#ffffff"
-                strokeWidth={2}
-                shadowColor="rgba(0,0,0,0.15)"
-                shadowBlur={4}
-                shadowOffset={{ x: 0, y: 2 }}
+              <Text
+                x={BASE_WIDTH - 58}
+                y={10}
+                text="Feature 2 →"
+                fontSize={11}
+                fill="#9ca3af"
+                fontStyle="italic"
+                rotation={-90}
               />
-            ))}
-          </Layer>
-
-          {/* Axes subtle labels */}
-          <Layer>
-            <Text
-              x={12}
-              y={CANVAS_HEIGHT - 18}
-              text="Feature 1 →"
-              fontSize={11}
-              fill="#9ca3af"
-              fontStyle="italic"
-            />
-            <Text
-              x={CANVAS_WIDTH - 58}
-              y={10}
-              text="Feature 2 →"
-              fontSize={11}
-              fill="#9ca3af"
-              fontStyle="italic"
-              rotation={-90}
-            />
-          </Layer>
-        </Stage>
+            </Layer>
+          </Stage>
+        </div>
       </div>
 
       {/* Action bar */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-3 max-w-[640px] mx-auto">
         <button
           onClick={handleUndo}
           disabled={!hasPoints}
