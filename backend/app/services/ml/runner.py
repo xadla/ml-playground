@@ -31,7 +31,7 @@ def execute_training(db: Session, experiment_id: str):
     if dataset.type == "canvas":
         if dataset.data is not None:
             points = dataset.data["points"]
-            x = [[p["x"], p["y"]] for p in points]
+            x = [[float(p["x"]), float(p["y"])] for p in points]
             y = [p["class"] for p in points]
             feature_names = dataset.data.get("feature_names", ["x", "y"])
     else:

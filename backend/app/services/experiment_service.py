@@ -4,6 +4,7 @@ from typing import Any
 import structlog
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.config import settings
 from app.db.datasets import Dataset
 from app.db.experiments import Experiment
 from app.db.repositories.dataset import DatasetRepository
@@ -115,6 +116,8 @@ class ExperimentService:
                 )
                 raise ValueError("Experiment not found")
 
+            base_url = settings.BASE_URL
+
             response: dict[str, Any] = {
                 "id": str(exp.id),
                 "status": exp.status.value
@@ -132,10 +135,15 @@ class ExperimentService:
             }
 
             if exp.status == "completed" and exp.result:
+                plots_with_full_url = {}
+                if exp.result.plot_paths:
+                    for key, path in exp.result.plot_paths.items():
+                        # path is like "/api/v1/plots/filename.png"
+                        plots_with_full_url[key] = f"{base_url}{path}"
                 response["result"] = {
                     "metrics": exp.result.metrics,
                     "confusion_matrix": exp.result.confusion_matrix_data,
-                    "plots": exp.result.plot_paths,
+                    "plots": plots_with_full_url,
                 }
             elif exp.status == "failed":
                 response["error_message"] = getattr(

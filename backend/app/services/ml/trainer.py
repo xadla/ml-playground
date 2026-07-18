@@ -30,14 +30,18 @@ def train_and_evaluate(
     plot_dir: str = settings.PLOT_DIR,
 ) -> dict[str, Any]:
     """Train a model and return metrics + plot paths."""
-    # Convert to arrays
-    x_arr = np.array(x)
-    y_arr = np.array(y)
+    # Convert X to array with proper dtype
+    x_arr = np.array(x, dtype=np.float64)
 
-    # Encode string labels if necessary
-    if y_arr.dtype == object:
-        le = LabelEncoder()
-        y_arr = le.fit_transform(y_arr)
+    # Clean and prepare y labels
+    y_str = [str(label).strip() for label in y]  # Convert all to strings
+    # Replace empty strings with 'unknown'
+    y_str = ["unknown" if label == "" else label for label in y_str]
+    y_arr = np.array(y_str)
+
+    # Encode string labels
+    le = LabelEncoder()
+    y_arr_encoded = le.fit_transform(y_arr)
 
     # Choose model
     if algorithm == "knn":
@@ -51,24 +55,26 @@ def train_and_evaluate(
     else:
         raise ValueError(f"Unsupported algorithm: {algorithm}")
 
-    # Train
-    model.fit(x_arr, y_arr)
+    # Train - USE ENCODED LABELS
+    model.fit(x_arr, y_arr_encoded)  # type: ignore
 
-    # Predict and evaluate
-    y_pred = model.predict(x_arr)
+    # Predict and evaluate - USE ENCODED LABELS
+    y_pred = model.predict(x_arr)  # type: ignore
     metrics = {
-        "accuracy": float(accuracy_score(y_arr, y_pred)),
+        "accuracy": float(accuracy_score(y_arr_encoded, y_pred)),
         "precision": float(
-            precision_score(y_arr, y_pred, average="weighted", zero_division=0)
+            precision_score(y_arr_encoded, y_pred, average="weighted", zero_division=0)
         ),
         "recall": float(
-            recall_score(y_arr, y_pred, average="weighted", zero_division=0)
+            recall_score(y_arr_encoded, y_pred, average="weighted", zero_division=0)
         ),
-        "f1_score": float(f1_score(y_arr, y_pred, average="weighted", zero_division=0)),
+        "f1_score": float(
+            f1_score(y_arr_encoded, y_pred, average="weighted", zero_division=0)
+        ),
     }
 
-    # Confusion matrix
-    cm = confusion_matrix(y_arr, y_pred).tolist()
+    # Confusion matrix - USE ENCODED LABELS
+    cm = confusion_matrix(y_arr_encoded, y_pred).tolist()
 
     # Generate plots
     os.makedirs(plot_dir, exist_ok=True)
@@ -82,12 +88,30 @@ def train_and_evaluate(
         xx, yy = np.meshgrid(
             np.linspace(x_min, x_max, 100), np.linspace(y_min, y_max, 100)
         )
-        z = model.predict(np.c_[xx.ravel(), yy.ravel()])
+        z = model.predict(np.c_[xx.ravel(), yy.ravel()])  # type: ignore
         z = z.reshape(xx.shape)
         ax.contourf(xx, yy, z, alpha=0.3)
-        ax.scatter(x_arr[:, 0], x_arr[:, 1], c=y_arr, edgecolors="k")
+        # USE ENCODED LABELS for scatter plot
+        scatter = ax.scatter(
+            x_arr[:, 0], x_arr[:, 1], c=y_arr_encoded, edgecolors="k", cmap="viridis"
+        )
         ax.set_xlabel(feature_names[0] if len(feature_names) > 0 else "x0")
         ax.set_ylabel(feature_names[1] if len(feature_names) > 1 else "x1")
+        # Add legend with actual class names
+        legend_elements = []
+        for i, class_name in enumerate(le.classes_):
+            legend_elements.append(
+                plt.Line2D(
+                    [0],
+                    [0],
+                    marker="o",
+                    color="w",
+                    markerfacecolor=scatter.cmap(scatter.norm(i)),  # type: ignore[misc]
+                    markersize=10,
+                    label=class_name,
+                )
+            )
+        ax.legend(handles=legend_elements)
         boundary_filename = f"decision_boundary_{uuid.uuid4()}.png"
         boundary_path = os.path.join(plot_dir, boundary_filename)
         fig.savefig(boundary_path, bbox_inches="tight", dpi=300)
@@ -99,11 +123,20 @@ def train_and_evaluate(
     im = ax2.imshow(cm, interpolation="nearest", cmap="Blues")
     ax2.set_title("Confusion Matrix")
     plt.colorbar(im, ax=ax2)
-    tick_marks = np.arange(len(np.unique(y_arr)))
+    # Use encoded labels for tick marks
+    tick_marks = np.arange(len(le.classes_))
     ax2.set_xticks(tick_marks)
     ax2.set_yticks(tick_marks)
+    ax2.set_xticklabels(le.classes_)
+    ax2.set_yticklabels(le.classes_)
     ax2.set_xlabel("Predicted")
     ax2.set_ylabel("True")
+
+    # Add text annotations for each cell
+    for i in range(len(le.classes_)):
+        for j in range(len(le.classes_)):
+            ax2.text(j, i, str(cm[i][j]), ha="center", va="center", color="black")
+
     cm_filename = f"confusion_matrix_{uuid.uuid4()}.png"
     cm_path = os.path.join(plot_dir, cm_filename)
     fig2.savefig(cm_path, bbox_inches="tight", dpi=300)

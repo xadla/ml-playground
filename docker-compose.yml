@@ -12,6 +12,7 @@ services:
     volumes:
       # Mount the app folder for hot reload
       - ./backend/app:/app/app
+      - plots_data:/app/plots
     environment:
       - DATABASE_URL=postgresql+asyncpg://postgres:postgres@db:5432/mlplayground
       - REDIS_URL=redis://redis:6379/0
@@ -23,6 +24,31 @@ services:
       redis:
         condition: service_started
     command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    networks:
+      - ml-network
+
+  # ============================================
+  # Celery Worker
+  # ============================================
+  celery_worker:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: ml-celery-worker
+    command: celery -A app.infrastructure.celery_app worker --loglevel=info
+    volumes:
+      - ./backend/app:/app/app
+      - plots_data:/app/plots
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://postgres:postgres@db:5432/mlplayground
+      - REDIS_URL=redis://redis:6379/0
+      - SECRET_KEY=dev-secret-change-in-production
+      - ENVIRONMENT=development
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
     networks:
       - ml-network
 
@@ -86,6 +112,7 @@ services:
 volumes:
   postgres_data:
   redis_data:
+  plots_data:
 
 networks:
   ml-network:

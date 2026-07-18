@@ -6,6 +6,7 @@ class Settings(BaseSettings):
     APP_NAME: str = "ML Playground"
     DEBUG: bool = False
     API_V1_PREFIX: str = "/api/v1"
+    BASE_URL: str = "http://localhost:8000"
 
     # Database
     DATABASE_URL: str = (
@@ -36,7 +37,7 @@ class Settings(BaseSettings):
 
     # Celery tasks
     SYNC_DATABASE_URL: str = (
-        "postgresql+psycopg2://postgres:postgres@localhost:5432/mlplayground"
+        "postgresql+psycopg2://postgres:postgres@db:5432/mlplayground"
     )
     SYNC_TEST_DB_URL: str = (
         "postgresql+psycopg2://postgres:postgres@localhost:5433/mlplayground_test"
