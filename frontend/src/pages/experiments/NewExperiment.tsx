@@ -77,7 +77,7 @@ export default function NewExperiment() {
     });
   };
 
-  const selectedAlgo = ALGORITHMS.find((a) => a.value === algorithm)!;
+  // const selectedAlgo = ALGORITHMS.find((a) => a.value === algorithm)!;
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
