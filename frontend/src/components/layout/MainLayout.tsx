@@ -46,6 +46,8 @@ const MainLayout = () => {
                   >
                     New Experiment
                   </Link>
+                  <Link to="/datasets/builtin">Datasets</Link>
+                  <Link to="/datasets/upload">Upload</Link>
                   <div className="flex items-center gap-3 pl-4 border-l border-gray-200 dark:border-gray-700">
                     <span className="text-sm text-gray-500 dark:text-gray-400">{user?.email}</span>
                     <button

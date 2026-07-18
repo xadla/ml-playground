@@ -10,6 +10,8 @@ import ProtectedRoute from '@/components/ProtectedRoute';
 import { AuthProvider } from '@/contexts/AuthContext';
 import NewExperiment from '@/pages/experiments/NewExperiment';
 import ExperimentDetail from '@/pages/experiments/ExperimentDetail';
+import BuiltinDatasets from '@/pages/datasets/BuiltinDatasets';
+import UploadDataset from '@/pages/datasets/UploadDataset';
 
 function App() {
   return (
@@ -23,6 +25,7 @@ function App() {
           <Route path="signup" element={<SignupPage />} />
           <Route path="verify-email" element={<VerifyEmailPage />} />
           <Route path="resend-verification" element={<ResendVerificationPage />} />
+          <Route path="datasets/builtin" element={<BuiltinDatasets />} />
 
           {/* Protected routes */}
           <Route
@@ -49,6 +52,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <ExperimentDetail />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="datasets/upload"
+            element={
+              <ProtectedRoute>
+                <UploadDataset />
               </ProtectedRoute>
             }
           />
