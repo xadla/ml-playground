@@ -5,8 +5,11 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { MemoryRouter, useParams } from 'react-router-dom';
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 
-import ExperimentDetail from '@/pages/experiments/ExperimentDetail';
-import { getExperimentStatus, saveExperiment } from '@/services/experimentService';
+import ExperimentDetail from '@/features/experiments/pages/ExperimentDetail';
+import {
+  getExperimentStatus,
+  saveExperiment,
+} from '@/features/experiments/services/experimentService';
 import { useAuth } from '@/contexts/AuthContext';
 
 // --------------------------------

@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import SignupPage from '../pages/auth/SignupPage';
+import SignupPage from '@/features/auth/pages/SignupPage';
 
 // Mock the auth context BEFORE importing useAuth
 vi.mock('@/contexts/AuthContext', () => ({

@@ -3,8 +3,8 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { MemoryRouter } from 'react-router-dom';
 import { vi, describe, it, beforeEach, expect } from 'vitest';
 
-import NewExperiment from '@/pages/experiments/NewExperiment';
-import { createExperiment } from '@/services/experimentService';
+import NewExperiment from '@/features/experiments/pages/NewExperiment';
+import { createExperiment } from '@/features/experiments/services/experimentService';
 
 // ------------------------
 // Mocks

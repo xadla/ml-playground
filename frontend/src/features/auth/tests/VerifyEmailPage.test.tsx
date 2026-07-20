@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
 import { AuthProvider } from '@/contexts/AuthContext';
-import VerifyEmailPage from '@/pages/auth/VerifyEmailPage';
+import VerifyEmailPage from '@/features/auth/pages/VerifyEmailPage';
 import { setupServer } from 'msw/node';
 import { http, HttpResponse } from 'msw';
 

@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import ResendVerificationPage from '../pages/auth/ResendVerificationPage';
+import ResendVerificationPage from '@/features/auth/pages/ResendVerificationPage';
 
 // Mock the auth service
 vi.mock('@/services/authService', () => ({
@@ -14,7 +14,7 @@ vi.mock('@/utils/error', () => ({
   getErrorMessage: vi.fn(),
 }));
 
-import { resendVerification } from '@/services/authService';
+import { resendVerification } from '@/features/auth/services/authService';
 import { getErrorMessage } from '@/lib/utils/error';
 
 describe('ResendVerificationPage', () => {
