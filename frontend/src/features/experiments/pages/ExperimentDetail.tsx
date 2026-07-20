@@ -1,8 +1,11 @@
 import { useParams } from 'react-router-dom';
 import { useQuery, useMutation } from '@tanstack/react-query';
-import { getExperimentStatus, saveExperiment } from '@/services/experimentService';
+import {
+  getExperimentStatus,
+  saveExperiment,
+} from '@/features/experiments/services/experimentService';
 import { useAuth } from '@/contexts/AuthContext';
-import type { ExperimentStatus } from '@/types/experiment';
+import type { ExperimentStatus } from '@/features/experiments/types';
 
 // ----- Status config -----
 const statusMeta: Record<string, { label: string; bg: string; text: string; dot: string }> = {

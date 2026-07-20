@@ -1,8 +1,8 @@
 import { useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDropzone } from 'react-dropzone';
-import { datasetService } from '@/services/datasetService';
-import type { UploadResponse } from '@/types/dataset';
+import { datasetService } from '@/features/datasets/services/datasetService';
+import type { UploadResponse } from '@/features/datasets/types';
 
 export default function UploadDataset() {
   const navigate = useNavigate();

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { resendVerification } from '@/services/authService';
+import { resendVerification } from '@/features/auth/services/authService';
 import { getErrorMessage } from '@/utils/error';
 
 const ResendVerificationPage = () => {

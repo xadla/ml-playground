@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useMutation } from '@tanstack/react-query';
-import DatasetCanvas from '@/components/canvas/DatasetCanvas';
-import { createExperiment } from '@/services/experimentService';
-import type { CanvasPoint, Algorithm } from '@/types/experiment';
+import DatasetCanvas from '@/features/datasets/components/DatasetCanvas';
+import { createExperiment } from '@/features/experiments/services/experimentService';
+import type { CanvasPoint, Algorithm } from '@/features/experiments/types';
 
 // ----- Algorithm definitions -----
 const ALGORITHMS: {

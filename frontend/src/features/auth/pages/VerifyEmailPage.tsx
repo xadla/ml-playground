@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams, useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
-import { verifyEmail } from '@/services/authService';
-import { getMe } from '@/services/authService';
+import { verifyEmail } from '@/features/auth/services/authService';
+import { getMe } from '@/features/auth/services/authService';
 import { getErrorMessage } from '@/utils/error';
 
 const VerifyEmailPage = () => {
