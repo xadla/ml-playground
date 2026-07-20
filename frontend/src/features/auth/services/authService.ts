@@ -7,7 +7,7 @@ import type {
   UserProfile,
   VerifyEmailResponse,
   MessageResponse,
-} from '@/types/auth';
+} from '@/features/auth/types';
 
 export async function signup(data: SignupRequest): Promise<SignupResponse> {
   const response = await api.post<SignupResponse>('/auth/signup', data);

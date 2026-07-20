@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
-import { datasetService } from '@/services/datasetService';
-import type { BuiltinDataset } from '@/types/dataset';
+import { datasetService } from '@/features/datasets/services/datasetService';
+import type { BuiltinDataset } from '@/features/datasets/types';
 
 export default function BuiltinDatasets() {
   const navigate = useNavigate();

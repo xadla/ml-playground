@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import Health from '@/pages/Health';
+import Health from '@/pages/Health/Health';
 import api from '@/api/client';
 
 // Mock the API client

@@ -1,6 +1,6 @@
 import os
 import uuid
-from typing import Any
+from typing import Any, cast
 
 import matplotlib
 import numpy as np
@@ -17,6 +17,7 @@ from sklearn.preprocessing import LabelEncoder  # type: ignore
 
 matplotlib.use("Agg")  # non-interactive backend
 import matplotlib.pyplot as plt
+from matplotlib.colors import Normalize
 
 from app.config import settings
 
@@ -78,7 +79,7 @@ def train_and_evaluate(
 
     # Generate plots
     os.makedirs(plot_dir, exist_ok=True)
-    plot_paths = {}
+    plot_paths: dict[str, str] = {}
 
     # Decision boundary (only if 2 features)
     if x_arr.shape[1] == 2:
@@ -97,16 +98,31 @@ def train_and_evaluate(
         )
         ax.set_xlabel(feature_names[0] if len(feature_names) > 0 else "x0")
         ax.set_ylabel(feature_names[1] if len(feature_names) > 1 else "x1")
-        # Add legend with actual class names
+
+        # Add legend with actual class names - FIXED TYPE ERRORS HERE
         legend_elements = []
+
+        # Get the colormap and norm from the scatter plot
+        cmap = scatter.get_cmap()
+        norm: Normalize = cast(Normalize, scatter.norm)
+
         for i, class_name in enumerate(le.classes_):
+            # Get the color for this class using the scatter's normalization
+            color = cmap(norm(i))
+
+            # Convert color to RGB tuple if it has alpha
+            if len(color) == 4:  # RGBA
+                color_rgb = (float(color[0]), float(color[1]), float(color[2]))
+            else:
+                color_rgb = (float(color[0]), float(color[1]), float(color[2]))
+
             legend_elements.append(
                 plt.Line2D(
                     [0],
                     [0],
                     marker="o",
                     color="w",
-                    markerfacecolor=scatter.cmap(scatter.norm(i)),  # type: ignore[misc]
+                    markerfacecolor=color_rgb,
                     markersize=10,
                     label=class_name,
                 )

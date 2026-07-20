@@ -1,23 +1,22 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '@/contexts/AuthContext';
-import { getErrorMessage } from '@/utils/error';
+import { Link } from 'react-router-dom';
+import { resendVerification } from '@/features/auth/services/authService';
+import { getErrorMessage } from '@/lib/utils/error';
 
-const LoginPage = () => {
-  const { loginAction } = useAuth();
-  const navigate = useNavigate();
+const ResendVerificationPage = () => {
   const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [message, setMessage] = useState('');
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setMessage('');
     setIsSubmitting(true);
     try {
-      await loginAction(email, password);
-      navigate('/dashboard');
+      const res = await resendVerification(email);
+      setMessage(res.message || 'Verification email sent! Please check your inbox.');
     } catch (err) {
       setError(getErrorMessage(err));
     } finally {
@@ -32,13 +31,35 @@ const LoginPage = () => {
         <div className="w-full max-w-md space-y-8">
           {/* Header */}
           <div>
-            <h2 className="text-3xl font-extrabold text-gray-900 dark:text-white">Welcome back</h2>
+            <h2 className="text-3xl font-extrabold text-gray-900 dark:text-white">
+              Resend verification
+            </h2>
             <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
-              Sign in to continue your ML journey.
+              Didn't receive the email? We'll send a new one.
             </p>
           </div>
 
           <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+            {/* Success message */}
+            {message && (
+              <div className="rounded-lg bg-green-50 dark:bg-green-900/20 p-4 border border-green-200 dark:border-green-800 text-green-700 dark:text-green-300 text-sm flex items-start gap-2">
+                <svg
+                  className="w-5 h-5 mt-0.5 shrink-0"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M5 13l4 4L19 7"
+                  />
+                </svg>
+                <span>{message}</span>
+              </div>
+            )}
+
             {/* Error alert */}
             {error && (
               <div className="rounded-lg bg-red-50 dark:bg-red-900/20 p-4 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 text-sm flex items-start gap-2">
@@ -81,28 +102,6 @@ const LoginPage = () => {
               </div>
             </div>
 
-            {/* Password */}
-            <div>
-              <label
-                htmlFor="password"
-                className="block text-sm font-medium text-gray-700 dark:text-gray-300"
-              >
-                Password
-              </label>
-              <div className="mt-1">
-                <input
-                  id="password"
-                  type="password"
-                  autoComplete="current-password"
-                  required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="appearance-none block w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent dark:bg-gray-800 dark:text-white transition duration-150"
-                  placeholder="Enter your password"
-                />
-              </div>
-            </div>
-
             {/* Submit */}
             <button
               type="submit"
@@ -127,30 +126,29 @@ const LoginPage = () => {
                       d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
                     />
                   </svg>
-                  Signing in...
+                  Sending...
                 </span>
               ) : (
-                'Sign in'
+                'Send verification email'
               )}
             </button>
 
-            {/* Sign up and Resend links */}
             <div className="flex flex-col space-y-2 text-center text-sm text-gray-600 dark:text-gray-400">
+              <p>
+                <Link
+                  to="/login"
+                  className="font-medium text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300"
+                >
+                  Back to login
+                </Link>
+              </p>
               <p>
                 Don't have an account?{' '}
                 <Link
                   to="/signup"
                   className="font-medium text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300"
                 >
-                  Create one
-                </Link>
-              </p>
-              <p>
-                <Link
-                  to="/resend-verification"
-                  className="font-medium text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300"
-                >
-                  Resend verification email
+                  Sign up
                 </Link>
               </p>
             </div>
@@ -178,13 +176,13 @@ const LoginPage = () => {
                   strokeLinecap="round"
                   strokeLinejoin="round"
                   strokeWidth={1.5}
-                  d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                  d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
                 />
               </svg>
             </div>
-            <h2 className="text-4xl font-bold mb-4">ML Playground</h2>
+            <h2 className="text-4xl font-bold mb-4">Check your inbox</h2>
             <p className="text-lg text-indigo-100 mb-6">
-              Pick up where you left off – your experiments are waiting.
+              Sometimes emails land in spam. Add us to your contacts to ensure delivery.
             </p>
             <div className="space-y-3">
               <div className="flex items-center gap-3 text-indigo-100">
@@ -198,10 +196,10 @@ const LoginPage = () => {
                     strokeLinecap="round"
                     strokeLinejoin="round"
                     strokeWidth={2}
-                    d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
+                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
                   />
                 </svg>
-                <span>Access your saved experiments</span>
+                <span>Delivered instantly in most cases</span>
               </div>
               <div className="flex items-center gap-3 text-indigo-100">
                 <svg
@@ -214,10 +212,10 @@ const LoginPage = () => {
                     strokeLinecap="round"
                     strokeLinejoin="round"
                     strokeWidth={2}
-                    d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"
+                    d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
                   />
                 </svg>
-                <span>Compare results side‑by‑side</span>
+                <span>Check spam or promotions folder</span>
               </div>
               <div className="flex items-center gap-3 text-indigo-100">
                 <svg
@@ -230,10 +228,10 @@ const LoginPage = () => {
                     strokeLinecap="round"
                     strokeLinejoin="round"
                     strokeWidth={2}
-                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                    d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
                   />
                 </svg>
-                <span>New features added every week</span>
+                <span>Still nothing? We're here to help.</span>
               </div>
             </div>
           </div>
@@ -243,4 +241,4 @@ const LoginPage = () => {
   );
 };
 
-export default LoginPage;
+export default ResendVerificationPage;

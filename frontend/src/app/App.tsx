@@ -1,17 +1,17 @@
 import { Routes, Route } from 'react-router-dom';
 import MainLayout from '@/components/layout/MainLayout';
-import Home from '@/pages/Home';
-import Health from '@/pages/Health';
-import LoginPage from '@/pages/auth/LoginPage';
-import SignupPage from '@/pages/auth/SignupPage';
-import VerifyEmailPage from '@/pages/auth/VerifyEmailPage';
-import ResendVerificationPage from '@/pages/auth/ResendVerificationPage';
+import Home from '@/pages/Home/Home';
+import Health from '@/pages/Health/Health';
+import LoginPage from '@/features/auth/pages/LoginPage';
+import SignupPage from '@/features/auth/pages/SignupPage';
+import VerifyEmailPage from '@/features/auth/pages/VerifyEmailPage';
+import ResendVerificationPage from '@/features/auth/pages/ResendVerificationPage';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import { AuthProvider } from '@/contexts/AuthContext';
-import NewExperiment from '@/pages/experiments/NewExperiment';
-import ExperimentDetail from '@/pages/experiments/ExperimentDetail';
-import BuiltinDatasets from '@/pages/datasets/BuiltinDatasets';
-import UploadDataset from '@/pages/datasets/UploadDataset';
+import NewExperiment from '@/features/experiments/pages/NewExperiment';
+import ExperimentDetail from '@/features/experiments/pages/ExperimentDetail';
+import BuiltinDatasets from '@/features/datasets/pages/BuiltinDatasets';
+import UploadDataset from '@/features/datasets/pages/UploadDataset';
 
 function App() {
   return (
