@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
-import { getErrorMessage } from '@/utils/error';
+import { getErrorMessage } from '@/lib/utils/error';
 
 const LoginPage = () => {
   const { loginAction } = useAuth();

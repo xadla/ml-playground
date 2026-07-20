@@ -15,7 +15,7 @@ vi.mock('@/utils/error', () => ({
 }));
 
 import { resendVerification } from '@/services/authService';
-import { getErrorMessage } from '@/utils/error';
+import { getErrorMessage } from '@/lib/utils/error';
 
 describe('ResendVerificationPage', () => {
   const mockResendVerification = resendVerification as ReturnType<typeof vi.fn>;
