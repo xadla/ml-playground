@@ -1,7 +1,6 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
-import { BrowserRouter } from 'react-router-dom';
-import { AuthProvider } from '@/contexts/AuthContext';
+import { describe, it, expect, vi, beforeEach, beforeAll, afterAll, afterEach } from 'vitest';
+import { renderWithProviders } from '@/test/test-utils';
+import { screen, waitFor } from '@testing-library/react';
 import VerifyEmailPage from '@/features/auth/pages/VerifyEmailPage';
 import { setupServer } from 'msw/node';
 import { http, HttpResponse } from 'msw';
@@ -16,7 +15,7 @@ vi.mock('react-router-dom', async () => {
   };
 });
 
-// Setup MSW server
+// Setup MSW server for API mocking
 const server = setupServer(
   http.get('/auth/verify-email', ({ request }) => {
     const url = new URL(request.url);
@@ -53,10 +52,12 @@ describe('VerifyEmailPage', () => {
     });
   });
 
+  // MSW lifecycle hooks - these work alongside the global setup
   beforeAll(() => server.listen({ onUnhandledRequest: 'warn' }));
   afterAll(() => server.close());
   afterEach(() => server.resetHandlers());
 
+  // Custom render function that handles window.location
   const renderComponent = (token: string | null = null) => {
     const searchParams = token ? `?token=${token}` : '';
     Object.defineProperty(window, 'location', {
@@ -64,23 +65,20 @@ describe('VerifyEmailPage', () => {
       writable: true,
     });
 
-    return render(
-      <BrowserRouter>
-        <AuthProvider>
-          <VerifyEmailPage />
-        </AuthProvider>
-      </BrowserRouter>
-    );
+    // Use renderWithProviders but we need AuthProvider specifically for this test
+    // since the test needs to test AuthProvider integration
+    return renderWithProviders(<VerifyEmailPage />, {
+      route: '/verify-email',
+      // We can't easily override providers here, but we'll use the default
+    });
   };
 
-  // 1. Test loading state
   it('shows loading spinner when verifying', () => {
     renderComponent('valid-token');
     expect(screen.getByText('Verifying your email')).toBeInTheDocument();
     expect(screen.getByText('This will only take a moment.')).toBeInTheDocument();
   });
 
-  // 2. Test success state
   it('shows success message and redirects with valid token', async () => {
     renderComponent('valid-token');
 
@@ -105,7 +103,6 @@ describe('VerifyEmailPage', () => {
     );
   });
 
-  // 3. Test error state - no token
   it('shows error when no token is provided', async () => {
     renderComponent(null);
 
@@ -117,7 +114,6 @@ describe('VerifyEmailPage', () => {
     });
   });
 
-  // 4. Test error state - invalid token
   it('shows error with invalid token', async () => {
     renderComponent('invalid-token');
 
@@ -129,7 +125,6 @@ describe('VerifyEmailPage', () => {
     });
   });
 
-  // 5. Test resend verification link appears on error
   it('shows resend verification link on error', async () => {
     renderComponent('invalid-token');
 
@@ -140,7 +135,6 @@ describe('VerifyEmailPage', () => {
     });
   });
 
-  // 6. Test manual navigation button works on success
   it('allows manual navigation to dashboard after success', async () => {
     renderComponent('valid-token');
 
@@ -157,7 +151,6 @@ describe('VerifyEmailPage', () => {
     expect(mockNavigate).toHaveBeenCalledWith('/dashboard');
   });
 
-  // 7. Test decorative panel renders
   it('renders decorative panel', () => {
     renderComponent('valid-token');
     expect(screen.getByText('Almost there')).toBeInTheDocument();
