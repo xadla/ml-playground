@@ -2,6 +2,8 @@ import { vi } from 'vitest';
 import { QueryClient } from '@tanstack/react-query';
 import { server } from '@/test/server';
 
+export { renderWithProviders } from './render';
+
 // Wait for promises to resolve
 export const waitForPromises = () => new Promise((resolve) => setTimeout(resolve, 0));
 
