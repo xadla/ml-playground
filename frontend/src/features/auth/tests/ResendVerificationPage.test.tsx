@@ -1,16 +1,16 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { screen, waitFor } from '@testing-library/react';
+import { renderWithProviders } from '@/test/test-utils';
 import userEvent from '@testing-library/user-event';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import ResendVerificationPage from '@/features/auth/pages/ResendVerificationPage';
 
 // Mock the auth service
-vi.mock('@/services/authService', () => ({
+vi.mock('@/features/auth/services/authService', () => ({
   resendVerification: vi.fn(),
 }));
 
 // Mock the error utility
-vi.mock('@/utils/error', () => ({
+vi.mock('@/lib/utils/error', () => ({
   getErrorMessage: vi.fn(),
 }));
 
@@ -22,27 +22,19 @@ describe('ResendVerificationPage', () => {
   const mockGetErrorMessage = getErrorMessage as ReturnType<typeof vi.fn>;
 
   beforeEach(() => {
+    // Clear all mocks before each test
     vi.clearAllMocks();
+
+    // Setup default error message handler
     mockGetErrorMessage.mockImplementation((err) => {
       if (err instanceof Error) return err.message;
       return 'An unexpected error occurred';
     });
   });
 
-  afterEach(() => {
-    vi.resetAllMocks();
-  });
-
+  // Simplified render - custom render handles all providers and routing
   const renderResendPage = () => {
-    return render(
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<ResendVerificationPage />} />
-          <Route path="/login" element={<div>Login Page</div>} />
-          <Route path="/signup" element={<div>Signup Page</div>} />
-        </Routes>
-      </BrowserRouter>
-    );
+    return renderWithProviders(<ResendVerificationPage />, { route: '/' });
   };
 
   describe('Rendering', () => {
