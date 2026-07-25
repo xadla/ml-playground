@@ -15,6 +15,7 @@ import UploadDataset from '@/features/datasets/pages/UploadDataset';
 import HistoryList from '@/features/history/pages/HistoryList';
 import Compare from '@/features/history/pages/Compare';
 import Profile from '@/pages/Profile/Profile';
+import Dashboard from '@/pages/Dashboard/Dashboard';
 
 function App() {
   return (
@@ -59,10 +60,7 @@ function App() {
             path="dashboard"
             element={
               <ProtectedRoute>
-                <div className="p-8 text-center">
-                  <h2 className="text-2xl font-bold">Dashboard</h2>
-                  <p>Welcome! Your protected content goes here.</p>
-                </div>
+                <Dashboard />
               </ProtectedRoute>
             }
           />
