@@ -1,25 +1,29 @@
 import { http, HttpResponse } from 'msw';
+import {
+  mockUser,
+  mockAuthTokens,
+  mockSignupResponse,
+  mockVerificationResponse,
+} from '@/test/fixtures/auth.fixtures';
 
-export const handlers = [
-  // Auth endpoints
+export const authHandlers = [
   http.post('/api/v1/auth/login', async ({ request }) => {
-    const { email, password } = await request.json();
+    const body = await request.json();
+    const { email, password } = body as { email: string; password: string };
 
     if (email === 'test@example.com' && password === 'password123') {
-      return HttpResponse.json({
-        access_token: 'mock-token-123',
-        token_type: 'bearer',
-      });
+      return HttpResponse.json(mockAuthTokens);
     }
     return HttpResponse.json({ message: 'Invalid credentials' }, { status: 401 });
   }),
 
   http.post('/api/v1/auth/signup', async ({ request }) => {
-    const { email } = await request.json();
+    const body = await request.json();
+    const { email } = body as { email: string };
     return HttpResponse.json(
       {
-        message: 'Verification email sent',
-        email: email,
+        ...mockSignupResponse,
+        email,
       },
       { status: 202 }
     );
@@ -30,20 +34,16 @@ export const handlers = [
     const token = url.searchParams.get('token');
 
     if (token === 'valid-token') {
-      return HttpResponse.json({
-        message: 'Email verified. Account created successfully.',
-        access_token: 'mock-token-456',
-        token_type: 'bearer',
-      });
+      return HttpResponse.json(mockVerificationResponse);
     }
     return HttpResponse.json({ message: 'Invalid or expired token' }, { status: 400 });
   }),
 
   http.get('/api/v1/auth/me', () => {
-    return HttpResponse.json({
-      id: '123',
-      email: 'test@example.com',
-      name: 'Test User',
-    });
+    return HttpResponse.json(mockUser);
+  }),
+
+  http.post('/api/v1/auth/logout', () => {
+    return HttpResponse.json({ message: 'Logged out successfully' });
   }),
 ];

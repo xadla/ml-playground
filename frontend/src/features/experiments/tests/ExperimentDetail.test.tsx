@@ -1,13 +1,14 @@
-// ExperimentDetail.test.tsx
-
-import { render, screen, waitFor, fireEvent } from '@testing-library/react';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { MemoryRouter, useParams } from 'react-router-dom';
+import { screen, waitFor, fireEvent } from '@testing-library/react';
+import { useParams } from 'react-router-dom';
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 
-import ExperimentDetail from '@/pages/experiments/ExperimentDetail';
-import { getExperimentStatus, saveExperiment } from '@/services/experimentService';
+import ExperimentDetail from '@/features/experiments/pages/ExperimentDetail';
+import {
+  getExperimentStatus,
+  saveExperiment,
+} from '@/features/experiments/services/experimentService';
 import { useAuth } from '@/contexts/AuthContext';
+import { renderWithProviders } from '@/test/test-utils';
 
 // --------------------------------
 // Mocks
@@ -18,7 +19,7 @@ vi.mock('react-router-dom', async () => {
   return { ...actual, useParams: vi.fn() };
 });
 
-vi.mock('@/services/experimentService', () => ({
+vi.mock('@/features/experiments/services/experimentService', () => ({
   getExperimentStatus: vi.fn(),
   saveExperiment: vi.fn(),
 }));
@@ -34,23 +35,6 @@ vi.stubGlobal('alert', vi.fn());
 // Helpers
 // --------------------------------
 
-function renderComponent(id = 'test-id') {
-  const queryClient = new QueryClient({
-    defaultOptions: {
-      queries: { retry: false },
-      mutations: { retry: false },
-    },
-  });
-  (useParams as unknown).mockReturnValue({ id });
-  return render(
-    <QueryClientProvider client={queryClient}>
-      <MemoryRouter>
-        <ExperimentDetail />
-      </MemoryRouter>
-    </QueryClientProvider>
-  );
-}
-
 const mockExperimentStatus = (status: string, overrides = {}) => ({
   experiment_id: 'test-id',
   status,
@@ -61,9 +45,13 @@ const mockExperimentStatus = (status: string, overrides = {}) => ({
   ...overrides,
 });
 
+// --------------------------------
+// Setup
+// --------------------------------
+
 beforeEach(() => {
   vi.clearAllMocks();
-  (useAuth as unknown).mockReturnValue({ isAuthenticated: false });
+  (useAuth as unknown as ReturnType<typeof vi.fn>).mockReturnValue({ isAuthenticated: false });
 });
 
 // --------------------------------
@@ -71,15 +59,29 @@ beforeEach(() => {
 // --------------------------------
 
 describe('ExperimentDetail', () => {
+  // Helper function using renderWithProviders
+  const renderComponent = (id = 'test-id') => {
+    (useParams as unknown as ReturnType<typeof vi.fn>).mockReturnValue({ id });
+
+    // renderWithProviders handles QueryClientProvider, AuthProvider, and Router
+    return renderWithProviders(<ExperimentDetail />, {
+      route: `/experiments/${id}`,
+    });
+  };
+
   it('renders loading state', () => {
-    (getExperimentStatus as unknown).mockImplementation(() => new Promise(() => {}));
+    (getExperimentStatus as unknown as ReturnType<typeof vi.fn>).mockImplementation(
+      () => new Promise(() => {})
+    );
     renderComponent();
     expect(screen.getByText(/loading experiment/i)).toBeInTheDocument();
     expect(document.querySelector('.animate-spin')).toBeInTheDocument();
   });
 
   it('renders error state when query fails', async () => {
-    (getExperimentStatus as unknown).mockRejectedValue(new Error('Network error'));
+    (getExperimentStatus as unknown as ReturnType<typeof vi.fn>).mockRejectedValue(
+      new Error('Network error')
+    );
     renderComponent();
 
     await waitFor(() => {
@@ -89,7 +91,7 @@ describe('ExperimentDetail', () => {
   });
 
   it('renders pending experiment details', async () => {
-    (getExperimentStatus as unknown).mockResolvedValue(
+    (getExperimentStatus as unknown as ReturnType<typeof vi.fn>).mockResolvedValue(
       mockExperimentStatus('pending', {
         algorithm: 'logistic_regression',
         hyperparameters: { C: 1.0, penalty: 'l2' },
@@ -109,7 +111,9 @@ describe('ExperimentDetail', () => {
   });
 
   it('renders running experiment details', async () => {
-    (getExperimentStatus as unknown).mockResolvedValue(mockExperimentStatus('running'));
+    (getExperimentStatus as unknown as ReturnType<typeof vi.fn>).mockResolvedValue(
+      mockExperimentStatus('running')
+    );
 
     renderComponent();
 
@@ -134,7 +138,7 @@ describe('ExperimentDetail', () => {
       },
     };
 
-    (getExperimentStatus as unknown).mockResolvedValue(
+    (getExperimentStatus as unknown as ReturnType<typeof vi.fn>).mockResolvedValue(
       mockExperimentStatus('completed', {
         result: mockResult,
         hyperparameters: { n_neighbors: 3 },
@@ -166,7 +170,7 @@ describe('ExperimentDetail', () => {
   });
 
   it('renders error message for failed experiment', async () => {
-    (getExperimentStatus as unknown).mockResolvedValue(
+    (getExperimentStatus as unknown as ReturnType<typeof vi.fn>).mockResolvedValue(
       mockExperimentStatus('failed', {
         error_message: 'Model did not converge',
       })
@@ -182,8 +186,10 @@ describe('ExperimentDetail', () => {
   });
 
   it('does not show save button when not authenticated', async () => {
-    (getExperimentStatus as unknown).mockResolvedValue(mockExperimentStatus('completed'));
-    (useAuth as unknown).mockReturnValue({ isAuthenticated: false });
+    (getExperimentStatus as unknown as ReturnType<typeof vi.fn>).mockResolvedValue(
+      mockExperimentStatus('completed')
+    );
+    (useAuth as unknown as ReturnType<typeof vi.fn>).mockReturnValue({ isAuthenticated: false });
 
     renderComponent();
 
@@ -195,8 +201,10 @@ describe('ExperimentDetail', () => {
   });
 
   it('shows save button when authenticated and experiment is completed', async () => {
-    (getExperimentStatus as unknown).mockResolvedValue(mockExperimentStatus('completed'));
-    (useAuth as unknown).mockReturnValue({ isAuthenticated: true });
+    (getExperimentStatus as unknown as ReturnType<typeof vi.fn>).mockResolvedValue(
+      mockExperimentStatus('completed')
+    );
+    (useAuth as unknown as ReturnType<typeof vi.fn>).mockReturnValue({ isAuthenticated: true });
 
     renderComponent();
 
@@ -206,9 +214,11 @@ describe('ExperimentDetail', () => {
   });
 
   it('calls saveExperiment when save button is clicked', async () => {
-    (getExperimentStatus as unknown).mockResolvedValue(mockExperimentStatus('completed'));
-    (useAuth as unknown).mockReturnValue({ isAuthenticated: true });
-    (saveExperiment as unknown).mockResolvedValue({ success: true });
+    (getExperimentStatus as unknown as ReturnType<typeof vi.fn>).mockResolvedValue(
+      mockExperimentStatus('completed')
+    );
+    (useAuth as unknown as ReturnType<typeof vi.fn>).mockReturnValue({ isAuthenticated: true });
+    (saveExperiment as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({ success: true });
 
     renderComponent();
 
@@ -224,9 +234,13 @@ describe('ExperimentDetail', () => {
   });
 
   it('handles save mutation error gracefully', async () => {
-    (getExperimentStatus as unknown).mockResolvedValue(mockExperimentStatus('completed'));
-    (useAuth as unknown).mockReturnValue({ isAuthenticated: true });
-    (saveExperiment as unknown).mockRejectedValue(new Error('Server error'));
+    (getExperimentStatus as unknown as ReturnType<typeof vi.fn>).mockResolvedValue(
+      mockExperimentStatus('completed')
+    );
+    (useAuth as unknown as ReturnType<typeof vi.fn>).mockReturnValue({ isAuthenticated: true });
+    (saveExperiment as unknown as ReturnType<typeof vi.fn>).mockRejectedValue(
+      new Error('Server error')
+    );
 
     renderComponent();
 
@@ -246,15 +260,19 @@ describe('ExperimentDetail', () => {
   });
 
   it('disables save button while saving', async () => {
-    (getExperimentStatus as unknown).mockResolvedValue(mockExperimentStatus('completed'));
-    (useAuth as unknown).mockReturnValue({ isAuthenticated: true });
+    (getExperimentStatus as unknown as ReturnType<typeof vi.fn>).mockResolvedValue(
+      mockExperimentStatus('completed')
+    );
+    (useAuth as unknown as ReturnType<typeof vi.fn>).mockReturnValue({ isAuthenticated: true });
 
     // Use a promise that we can control
     let resolveMutation: (value: unknown) => void;
     const mutationPromise = new Promise((resolve) => {
       resolveMutation = resolve;
     });
-    (saveExperiment as unknown).mockImplementation(() => mutationPromise);
+    (saveExperiment as unknown as ReturnType<typeof vi.fn>).mockImplementation(
+      () => mutationPromise
+    );
 
     renderComponent();
 

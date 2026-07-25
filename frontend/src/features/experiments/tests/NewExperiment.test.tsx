@@ -3,8 +3,8 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { MemoryRouter } from 'react-router-dom';
 import { vi, describe, it, beforeEach, expect } from 'vitest';
 
-import NewExperiment from '@/pages/experiments/NewExperiment';
-import { createExperiment } from '@/services/experimentService';
+import NewExperiment from '@/features/experiments/pages/NewExperiment';
+import { createExperiment } from '@/features/experiments/services/experimentService';
 
 // ------------------------
 // Mocks
@@ -14,34 +14,61 @@ const navigate = vi.fn();
 
 vi.mock('react-router-dom', async () => {
   const actual = await vi.importActual<typeof import('react-router-dom')>('react-router-dom');
-
   return {
     ...actual,
     useNavigate: () => navigate,
   };
 });
 
-vi.mock('@/services/experimentService', () => ({
+vi.mock('@/features/experiments/services/experimentService', () => ({
   createExperiment: vi.fn(),
 }));
 
-// Mock the canvas so we don't have to deal with mouse events
-vi.mock('@/components/canvas/DatasetCanvas', () => ({
-  default: ({ onPointsChange }: unknown) => (
-    <button
-      data-testid="add-point"
-      onClick={() =>
-        onPointsChange([
-          {
-            x: 10,
-            y: 20,
-            class: 'A',
-          },
-        ])
-      }
-    >
-      Add Point
-    </button>
+// Mock Konva components to prevent canvas errors
+vi.mock('react-konva', () => ({
+  Stage: ({ children }: { children: React.ReactNode }) => <div data-testid="stage">{children}</div>,
+  Layer: ({ children }: { children: React.ReactNode }) => <div data-testid="layer">{children}</div>,
+  Circle: (props: unknown) => <div data-testid="circle" data-props={JSON.stringify(props)} />,
+  Line: (props: unknown) => <div data-testid="line" data-props={JSON.stringify(props)} />,
+  Text: (props: unknown) => <div data-testid="text" data-props={JSON.stringify(props)} />,
+  Rect: (props: unknown) => <div data-testid="rect" data-props={JSON.stringify(props)} />,
+  Group: ({ children }: { children: React.ReactNode }) => <div data-testid="group">{children}</div>,
+}));
+
+// Mock the DatasetCanvas component
+vi.mock('@/features/datasets/components/DatasetCanvas', () => ({
+  default: ({
+    onPointsChange,
+    selectedClass,
+    onClassChange,
+  }: {
+    onPointsChange: (points: Array<{ x: number; y: number; class: string }>) => void;
+    selectedClass: string;
+    onClassChange: (classLabel: string) => void;
+  }) => (
+    <div data-testid="dataset-canvas">
+      <button
+        data-testid="add-point"
+        onClick={() =>
+          onPointsChange([
+            {
+              x: 10,
+              y: 20,
+              class: selectedClass || 'A',
+            },
+          ])
+        }
+      >
+        Add Point
+      </button>
+      <button data-testid="clear-points" onClick={() => onPointsChange([])}>
+        Clear Points
+      </button>
+      <div data-testid="selected-class">{selectedClass}</div>
+      <button data-testid="change-class" onClick={() => onClassChange('B')}>
+        Change Class
+      </button>
+    </div>
   ),
 }));
 
@@ -138,9 +165,9 @@ describe('NewExperiment', () => {
   });
 
   it('calls createExperiment with correct payload', async () => {
-    vi.mocked(createExperiment).mockResolvedValue({
+    (createExperiment as ReturnType<typeof vi.fn>).mockResolvedValue({
       experiment_id: 'exp-123',
-    } as unknown);
+    });
 
     renderComponent();
 
@@ -180,15 +207,13 @@ describe('NewExperiment', () => {
       target_column: 'class',
     };
 
-    // The mutation function receives a second argument (options object)
-    // so we ignore it with expect.anything()
     expect(createExperiment).toHaveBeenCalledWith(expectedPayload, expect.anything());
   });
 
   it('navigates after successful creation', async () => {
-    vi.mocked(createExperiment).mockResolvedValue({
+    (createExperiment as ReturnType<typeof vi.fn>).mockResolvedValue({
       experiment_id: 'abc123',
-    } as unknown);
+    });
 
     renderComponent();
 
@@ -210,7 +235,7 @@ describe('NewExperiment', () => {
   });
 
   it('shows server error when mutation fails', async () => {
-    vi.mocked(createExperiment).mockRejectedValue({
+    (createExperiment as ReturnType<typeof vi.fn>).mockRejectedValue({
       response: {
         data: {
           detail: 'Server Error',
@@ -238,7 +263,6 @@ describe('NewExperiment', () => {
   it('changes KNN hyperparameter value', () => {
     renderComponent();
 
-    // The label is not associated, so use the displayed value to find the input
     const input = screen.getByDisplayValue('5');
 
     fireEvent.change(input, {
@@ -259,7 +283,6 @@ describe('NewExperiment', () => {
       })
     );
 
-    // Use display value to find the input
     const cInput = screen.getByDisplayValue('1.0');
 
     fireEvent.change(cInput, {
@@ -270,7 +293,6 @@ describe('NewExperiment', () => {
 
     expect(cInput).toHaveValue(2.5);
 
-    // Use display value to find the select
     const select = screen.getByDisplayValue('L2 (Ridge)');
 
     fireEvent.change(select, {

@@ -1,15 +1,14 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { renderWithProviders } from '@/test/test-utils';
+import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import LoginPage from '../pages/auth/LoginPage';
+import LoginPage from '@/features/auth/pages/LoginPage';
 
 // Mock the auth context BEFORE importing useAuth
 vi.mock('@/contexts/AuthContext', () => ({
   useAuth: vi.fn(),
 }));
 
-// Import after mocking
 import { useAuth } from '@/contexts/AuthContext';
 
 // Mock react-router-dom's useNavigate
@@ -24,7 +23,7 @@ vi.mock('react-router-dom', async () => {
 
 describe('LoginPage', () => {
   const mockLoginAction = vi.fn();
-  const mockUseAuth = useAuth as unknown;
+  const mockUseAuth = useAuth as unknown as jest.Mock;
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -43,21 +42,9 @@ describe('LoginPage', () => {
     });
   });
 
-  afterEach(() => {
-    vi.resetAllMocks();
-  });
-
+  // Simplified render - custom render handles all providers and routing
   const renderLoginPage = () => {
-    return render(
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<LoginPage />} />
-          <Route path="/dashboard" element={<div>Dashboard Page</div>} />
-          <Route path="/signup" element={<div>Signup Page</div>} />
-          <Route path="/resend-verification" element={<div>Resend Verification</div>} />
-        </Routes>
-      </BrowserRouter>
-    );
+    return renderWithProviders(<LoginPage />, { route: '/' });
   };
 
   describe('Rendering', () => {
