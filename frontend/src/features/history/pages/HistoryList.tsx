@@ -266,11 +266,11 @@ export default function HistoryList() {
                       />
                     </div>
 
-                    {/* Metrics */}
+                    {/* Metrics
                     <div className="grid grid-cols-2 gap-3 mt-2 mb-4">
                       <MetricBadge label="Accuracy" value={item.metrics.accuracy} />
                       <MetricBadge label="F1 Score" value={item.metrics.f1_score} />
-                    </div>
+                    </div> */}
 
                     {/* Date */}
                     <p className="text-xs text-gray-500 dark:text-gray-400 mt-auto">

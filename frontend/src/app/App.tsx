@@ -12,6 +12,9 @@ import NewExperiment from '@/features/experiments/pages/NewExperiment';
 import ExperimentDetail from '@/features/experiments/pages/ExperimentDetail';
 import BuiltinDatasets from '@/features/datasets/pages/BuiltinDatasets';
 import UploadDataset from '@/features/datasets/pages/UploadDataset';
+import HistoryList from '@/features/history/pages/HistoryList';
+import Compare from '@/features/history/pages/Compare';
+import Profile from '@/pages/Profile/Profile';
 
 function App() {
   return (
@@ -26,6 +29,30 @@ function App() {
           <Route path="verify-email" element={<VerifyEmailPage />} />
           <Route path="resend-verification" element={<ResendVerificationPage />} />
           <Route path="datasets/builtin" element={<BuiltinDatasets />} />
+          <Route
+            path="history"
+            element={
+              <ProtectedRoute>
+                <HistoryList />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="history/compare"
+            element={
+              <ProtectedRoute>
+                <Compare />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="profile"
+            element={
+              <ProtectedRoute>
+                <Profile />
+              </ProtectedRoute>
+            }
+          />
 
           {/* Protected routes */}
           <Route
