@@ -1,0 +1,11 @@
+# Global owner – you
+* @YOUR_GITHUB_USERNAME
+
+# Backend
+/backend/ @YOUR_GITHUB_USERNAME
+
+# Frontend
+/frontend/ @YOUR_GITHUB_USERNAME
+
+# CI/CD
+/.github/ @YOUR_GITHUB_USERNAME
