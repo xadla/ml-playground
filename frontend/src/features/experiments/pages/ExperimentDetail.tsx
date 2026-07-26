@@ -6,6 +6,7 @@ import {
 } from '@/features/experiments/services/experimentService';
 import { useAuth } from '@/contexts/AuthContext';
 import type { ExperimentStatus } from '@/features/experiments/types';
+import { Skeleton } from '@/components/ui/skeleton';
 
 // ----- Status config -----
 const statusMeta: Record<string, { label: string; bg: string; text: string; dot: string }> = {
@@ -64,26 +65,41 @@ export default function ExperimentDetail() {
   // ----- Loading skeleton -----
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex items-center justify-center">
-        <div className="text-center space-y-4">
-          <div className="flex justify-center">
-            <svg className="animate-spin h-12 w-12 text-indigo-600" viewBox="0 0 24 24" fill="none">
-              <circle
-                className="opacity-25"
-                cx="12"
-                cy="12"
-                r="10"
-                stroke="currentColor"
-                strokeWidth="4"
-              />
-              <path
-                className="opacity-75"
-                fill="currentColor"
-                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
-              />
-            </svg>
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
+        <div className="max-w-7xl mx-auto px-4 py-10 space-y-8">
+          {/* Header */}
+          <Skeleton className="h-8 w-64" />
+          <Skeleton className="h-4 w-48 mt-2" />
+
+          {/* Metrics cards */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {[1, 2, 3, 4].map((i) => (
+              <div
+                key={i}
+                className="bg-white dark:bg-gray-800 rounded-2xl p-6 text-center space-y-3"
+              >
+                <Skeleton className="h-4 w-20 mx-auto" />
+                <Skeleton className="h-8 w-16 mx-auto" />
+                <Skeleton className="h-1.5 w-full" />
+              </div>
+            ))}
           </div>
-          <p className="text-gray-500 dark:text-gray-400">Loading experiment...</p>
+
+          {/* Confusion matrix skeleton */}
+          <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 space-y-4">
+            <Skeleton className="h-6 w-40" />
+            <div className="space-y-2">
+              {[1, 2, 3, 4].map((i) => (
+                <Skeleton key={i} className="h-8 w-full" />
+              ))}
+            </div>
+          </div>
+
+          {/* Plot skeleton */}
+          <div className="grid md:grid-cols-2 gap-6">
+            <Skeleton className="h-64 rounded-2xl" />
+            <Skeleton className="h-64 rounded-2xl" />
+          </div>
         </div>
       </div>
     );

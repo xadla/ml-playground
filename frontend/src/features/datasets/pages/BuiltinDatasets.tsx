@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { datasetService } from '@/features/datasets/services/datasetService';
 import type { BuiltinDataset } from '@/features/datasets/types';
+import { Skeleton } from '@/components/ui/skeleton';
 
 export default function BuiltinDatasets() {
   const navigate = useNavigate();
@@ -26,23 +27,31 @@ export default function BuiltinDatasets() {
 
         {/* Loading state */}
         {isLoading && (
-          <div className="flex justify-center py-20">
-            <svg className="animate-spin h-10 w-10 text-indigo-600" viewBox="0 0 24 24">
-              <circle
-                className="opacity-25"
-                cx="12"
-                cy="12"
-                r="10"
-                stroke="currentColor"
-                strokeWidth="4"
-                fill="none"
-              />
-              <path
-                className="opacity-75"
-                fill="currentColor"
-                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
-              />
-            </svg>
+          <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
+            <div className="max-w-7xl mx-auto px-4 py-10 space-y-8">
+              <Skeleton className="h-8 w-64" />
+              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                {[1, 2, 3, 4, 5, 6].map((i) => (
+                  <div key={i} className="bg-white dark:bg-gray-800 rounded-2xl overflow-hidden">
+                    <Skeleton className="h-2 w-full" />
+                    <div className="p-6 space-y-4">
+                      <div className="flex items-start gap-3">
+                        <Skeleton className="w-10 h-10 rounded-xl" />
+                        <div className="flex-1 space-y-2">
+                          <Skeleton className="h-5 w-32" />
+                          <Skeleton className="h-3 w-full" />
+                        </div>
+                      </div>
+                      <div className="flex gap-2">
+                        <Skeleton className="h-6 w-16" />
+                        <Skeleton className="h-6 w-16" />
+                      </div>
+                      <Skeleton className="h-10 w-full rounded-xl" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         )}
 
