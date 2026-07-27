@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { datasetService } from '@/features/datasets/services/datasetService';
 import type { BuiltinDataset } from '@/features/datasets/types';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Helmet } from 'react-helmet-async';
 
 export default function BuiltinDatasets() {
   const navigate = useNavigate();
@@ -12,117 +13,122 @@ export default function BuiltinDatasets() {
   });
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-        {/* Page header */}
-        <div className="mb-10">
-          <h1 className="text-3xl font-extrabold text-gray-900 dark:text-white">
-            Built‑in Datasets
-          </h1>
-          <p className="mt-2 text-gray-600 dark:text-gray-400 max-w-2xl">
-            Ready‑to‑use datasets perfect for learning and experimenting. Click any dataset to jump
-            straight into an experiment.
-          </p>
-        </div>
+    <>
+      <Helmet>
+        <title>Built‑in Datasets – ML Playground</title>
+      </Helmet>
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+          {/* Page header */}
+          <div className="mb-10">
+            <h1 className="text-3xl font-extrabold text-gray-900 dark:text-white">
+              Built‑in Datasets
+            </h1>
+            <p className="mt-2 text-gray-600 dark:text-gray-400 max-w-2xl">
+              Ready‑to‑use datasets perfect for learning and experimenting. Click any dataset to
+              jump straight into an experiment.
+            </p>
+          </div>
 
-        {/* Loading state */}
-        {isLoading && (
-          <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
-            <div className="max-w-7xl mx-auto px-4 py-10 space-y-8">
-              <Skeleton className="h-8 w-64" />
-              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                {[1, 2, 3, 4, 5, 6].map((i) => (
-                  <div key={i} className="bg-white dark:bg-gray-800 rounded-2xl overflow-hidden">
-                    <Skeleton className="h-2 w-full" />
-                    <div className="p-6 space-y-4">
-                      <div className="flex items-start gap-3">
-                        <Skeleton className="w-10 h-10 rounded-xl" />
-                        <div className="flex-1 space-y-2">
-                          <Skeleton className="h-5 w-32" />
-                          <Skeleton className="h-3 w-full" />
+          {/* Loading state */}
+          {isLoading && (
+            <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
+              <div className="max-w-7xl mx-auto px-4 py-10 space-y-8">
+                <Skeleton className="h-8 w-64" />
+                <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                  {[1, 2, 3, 4, 5, 6].map((i) => (
+                    <div key={i} className="bg-white dark:bg-gray-800 rounded-2xl overflow-hidden">
+                      <Skeleton className="h-2 w-full" />
+                      <div className="p-6 space-y-4">
+                        <div className="flex items-start gap-3">
+                          <Skeleton className="w-10 h-10 rounded-xl" />
+                          <div className="flex-1 space-y-2">
+                            <Skeleton className="h-5 w-32" />
+                            <Skeleton className="h-3 w-full" />
+                          </div>
                         </div>
+                        <div className="flex gap-2">
+                          <Skeleton className="h-6 w-16" />
+                          <Skeleton className="h-6 w-16" />
+                        </div>
+                        <Skeleton className="h-10 w-full rounded-xl" />
                       </div>
-                      <div className="flex gap-2">
-                        <Skeleton className="h-6 w-16" />
-                        <Skeleton className="h-6 w-16" />
-                      </div>
-                      <Skeleton className="h-10 w-full rounded-xl" />
                     </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
             </div>
-          </div>
-        )}
+          )}
 
-        {/* Error state */}
-        {error && (
-          <div className="flex flex-col items-center justify-center py-20">
-            <div className="w-16 h-16 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center mb-4">
-              <svg
-                className="w-8 h-8 text-red-600 dark:text-red-300"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                />
-              </svg>
+          {/* Error state */}
+          {error && (
+            <div className="flex flex-col items-center justify-center py-20">
+              <div className="w-16 h-16 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center mb-4">
+                <svg
+                  className="w-8 h-8 text-red-600 dark:text-red-300"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
+                </svg>
+              </div>
+              <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+                Failed to load datasets
+              </h2>
+              <p className="text-gray-500 dark:text-gray-400 mt-1">
+                Please check your connection or try again later.
+              </p>
             </div>
-            <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
-              Failed to load datasets
-            </h2>
-            <p className="text-gray-500 dark:text-gray-400 mt-1">
-              Please check your connection or try again later.
-            </p>
-          </div>
-        )}
+          )}
 
-        {/* Datasets grid */}
-        {data && data.length > 0 && (
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {data.map((dataset) => (
-              <DatasetCard
-                key={dataset.id}
-                dataset={dataset}
-                onUse={() => navigate(`/experiments/new?source=builtin&datasetId=${dataset.id}`)}
-              />
-            ))}
-          </div>
-        )}
-
-        {/* Empty state */}
-        {data && data.length === 0 && (
-          <div className="flex flex-col items-center justify-center py-20">
-            <div className="w-16 h-16 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mb-4">
-              <svg
-                className="w-8 h-8 text-gray-400"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-2.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"
+          {/* Datasets grid */}
+          {data && data.length > 0 && (
+            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {data.map((dataset) => (
+                <DatasetCard
+                  key={dataset.id}
+                  dataset={dataset}
+                  onUse={() => navigate(`/experiments/new?source=builtin&datasetId=${dataset.id}`)}
                 />
-              </svg>
+              ))}
             </div>
-            <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
-              No datasets available
-            </h2>
-            <p className="text-gray-500 dark:text-gray-400 mt-1">
-              Check back later – we're adding new ones regularly!
-            </p>
-          </div>
-        )}
+          )}
+
+          {/* Empty state */}
+          {data && data.length === 0 && (
+            <div className="flex flex-col items-center justify-center py-20">
+              <div className="w-16 h-16 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mb-4">
+                <svg
+                  className="w-8 h-8 text-gray-400"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-2.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"
+                  />
+                </svg>
+              </div>
+              <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+                No datasets available
+              </h2>
+              <p className="text-gray-500 dark:text-gray-400 mt-1">
+                Check back later – we're adding new ones regularly!
+              </p>
+            </div>
+          )}
+        </div>
       </div>
-    </div>
+    </>
   );
 }
 
