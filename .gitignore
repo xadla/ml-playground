@@ -69,3 +69,10 @@ coverage.xml
 *.zip
 *.tar.gz
 *.rar
+
+# ============================================
+# Icon
+# ============================================
+favicon.ico
+favicon.svg
+favicon.png
