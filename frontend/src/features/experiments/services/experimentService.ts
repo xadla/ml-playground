@@ -3,8 +3,8 @@ import type {
   CreateExperimentRequest,
   ExperimentCreateResponse,
   ExperimentStatus,
-} from '@/types/experiment';
-import type { MessageResponse } from '@/types/auth';
+} from '@/features/experiments/types';
+import type { MessageResponse } from '@/features/auth/types';
 
 export async function createExperiment(
   data: CreateExperimentRequest

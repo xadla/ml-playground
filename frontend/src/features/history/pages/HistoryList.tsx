@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { historyService } from '@/features/history/services/historyService';
-import type { HistoryExperiment } from '@/features/history/types/history';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Helmet } from 'react-helmet-async';
 
@@ -371,11 +370,11 @@ export default function HistoryList() {
 }
 
 // Small metric display component
-function MetricBadge({ label, value }: { label: string; value: number }) {
-  return (
-    <div className="text-center bg-gray-50 dark:bg-gray-900/50 rounded-xl p-2">
-      <p className="text-xs text-gray-500 dark:text-gray-400">{label}</p>
-      <p className="text-lg font-bold text-gray-900 dark:text-white">{(value * 100).toFixed(1)}%</p>
-    </div>
-  );
-}
+// function MetricBadge({ label, value }: { label: string; value: number }) {
+//   return (
+//     <div className="text-center bg-gray-50 dark:bg-gray-900/50 rounded-xl p-2">
+//       <p className="text-xs text-gray-500 dark:text-gray-400">{label}</p>
+//       <p className="text-lg font-bold text-gray-900 dark:text-white">{(value * 100).toFixed(1)}%</p>
+//     </div>
+//   );
+// }

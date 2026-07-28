@@ -1,5 +1,5 @@
 import axios from 'axios';
-import type { ApiError } from '@/types/auth';
+import type { ApiError } from '@/features/auth/types';
 
 export const getErrorMessage = (error: unknown): string => {
   if (axios.isAxiosError(error)) {

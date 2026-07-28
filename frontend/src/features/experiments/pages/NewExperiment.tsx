@@ -5,6 +5,7 @@ import DatasetCanvas from '@/features/datasets/components/DatasetCanvas';
 import { createExperiment } from '@/features/experiments/services/experimentService';
 import type { CanvasPoint, Algorithm } from '@/features/experiments/types';
 import { Helmet } from 'react-helmet-async';
+import type { ApiError } from '@/features/auth/types';
 
 // ----- Algorithm definitions -----
 const ALGORITHMS: {
@@ -289,8 +290,9 @@ export default function NewExperiment() {
               </button>
               {mutation.isError && (
                 <p className="text-red-500 text-sm bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-3">
-                  {(mutation.error as unknown)?.response?.data?.detail ||
-                    'Something went wrong. Please try again.'}
+                  {(mutation.error as unknown as ApiError)?.error?.message ||
+                    mutation.error?.message ||
+                    'An error occurred'}
                 </p>
               )}
               <p className="text-xs text-center text-gray-400 dark:text-gray-500">
