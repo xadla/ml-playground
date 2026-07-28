@@ -6,7 +6,7 @@ class Settings(BaseSettings):
     APP_NAME: str = "ML Playground"
     DEBUG: bool = False
     API_V1_PREFIX: str = "/api/v1"
-    BASE_URL: str = "http://localhost:8000"
+    BASE_URL: str = "http://localhost"
 
     # Database
     DATABASE_URL: str = (
@@ -44,7 +44,12 @@ class Settings(BaseSettings):
     )
 
     # CORS
-    ALLOWED_ORIGINS: list[str] = ["http://localhost:5173"]
+    ALLOWED_ORIGINS: list[str] = [
+        "http://localhost",  # nginx default
+        "http://localhost:80",  # nginx explicit
+        "http://127.0.0.1",  # nginx alternative
+        "http://127.0.0.1:80",  # nginx explicit alternative
+    ]
 
     model_config = SettingsConfigDict(
         env_file=".env",
