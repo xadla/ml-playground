@@ -183,7 +183,7 @@ export default function Dashboard() {
                 {experiments.map((exp) => (
                   <div
                     key={exp.id}
-                    onClick={() => navigate(`/experiments/${exp.experiment_id}`)}
+                    onClick={() => navigate(`/experiments/${exp.id}`)}
                     className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4 flex items-center justify-between hover:border-indigo-300 dark:hover:border-indigo-700 hover:shadow-sm transition cursor-pointer"
                   >
                     <div className="min-w-0">

@@ -1,5 +1,5 @@
 import api from '@/api/client';
-import type { BuiltinDataset, UploadResponse } from '@/types/dataset';
+import type { BuiltinDataset, UploadResponse } from '@/features/datasets/types';
 
 export const datasetService = {
   getBuiltinDatasets: async (): Promise<BuiltinDataset[]> => {

@@ -4,6 +4,7 @@ import { useDropzone } from 'react-dropzone';
 import { datasetService } from '@/features/datasets/services/datasetService';
 import type { UploadResponse } from '@/features/datasets/types';
 import { Helmet } from 'react-helmet-async';
+import type { ApiError } from '@/features/auth/types';
 
 export default function UploadDataset() {
   const navigate = useNavigate();
@@ -46,7 +47,7 @@ export default function UploadDataset() {
       const res = await datasetService.uploadDataset(file, setProgress);
       setPreview(res);
     } catch (err: unknown) {
-      setError(err?.response?.data?.detail || 'Upload failed. Please try again.');
+      setError((err as ApiError)?.error?.message || 'Upload failed. Please try again.');
     } finally {
       setUploading(false);
     }

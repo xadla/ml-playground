@@ -50,8 +50,10 @@ export default function ExperimentDetail() {
     queryKey: ['experiment', id],
     queryFn: () => getExperimentStatus(id!),
     enabled: !!id,
-    refetchInterval: (data) =>
-      data?.status === 'completed' || data?.status === 'failed' ? false : 2000,
+    refetchInterval: (query) => {
+      const data = query.state.data;
+      return data?.status === 'completed' || data?.status === 'failed' ? false : 2000;
+    },
   });
 
   // Save mutation

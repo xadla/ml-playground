@@ -50,7 +50,7 @@ describe('Health Page', () => {
   describe('Loading state', () => {
     it('shows loading message initially', () => {
       // Mock the API to never resolve
-      (api.get as jest.Mock).mockImplementation(() => new Promise(() => {}));
+      (api.get as vi.Mock).mockImplementation(() => new Promise(() => {}));
 
       renderHealth();
 
@@ -67,7 +67,7 @@ describe('Health Page', () => {
         database: 'connected',
       };
 
-      (api.get as jest.Mock).mockResolvedValue({ data: mockHealthData });
+      (api.get as vi.Mock).mockResolvedValue({ data: mockHealthData });
 
       renderHealth();
 
@@ -96,7 +96,7 @@ describe('Health Page', () => {
         },
       };
 
-      (api.get as jest.Mock).mockResolvedValue({ data: mockHealthData });
+      (api.get as vi.Mock).mockResolvedValue({ data: mockHealthData });
 
       renderHealth();
 
@@ -117,7 +117,7 @@ describe('Health Page', () => {
         timestamp: '2024-01-01T00:00:00Z',
       };
 
-      (api.get as jest.Mock).mockResolvedValue({ data: mockHealthData });
+      (api.get as vi.Mock).mockResolvedValue({ data: mockHealthData });
 
       renderHealth();
 
@@ -132,7 +132,7 @@ describe('Health Page', () => {
 
   describe('Error state', () => {
     it('shows error message when API call fails', async () => {
-      (api.get as jest.Mock).mockRejectedValue(new Error('Network error'));
+      (api.get as vi.Mock).mockRejectedValue(new Error('Network error'));
 
       renderHealth();
 
@@ -151,7 +151,7 @@ describe('Health Page', () => {
 
       for (const { error } of errorTypes) {
         vi.clearAllMocks();
-        (api.get as jest.Mock).mockRejectedValue(error);
+        (api.get as vi.Mock).mockRejectedValue(error);
 
         renderHealth();
 
@@ -164,7 +164,7 @@ describe('Health Page', () => {
     });
 
     it('does not show data when error occurs', async () => {
-      (api.get as jest.Mock).mockRejectedValue(new Error('API error'));
+      (api.get as vi.Mock).mockRejectedValue(new Error('API error'));
 
       renderHealth();
 
@@ -178,7 +178,7 @@ describe('Health Page', () => {
 
   describe('API integration', () => {
     it('calls the health endpoint with correct URL', async () => {
-      (api.get as jest.Mock).mockResolvedValue({ data: { status: 'ok' } });
+      (api.get as vi.Mock).mockResolvedValue({ data: { status: 'ok' } });
 
       renderHealth();
 
@@ -188,7 +188,7 @@ describe('Health Page', () => {
     });
 
     it('uses the correct query key for caching', async () => {
-      (api.get as jest.Mock).mockResolvedValue({ data: { status: 'ok' } });
+      (api.get as vi.Mock).mockResolvedValue({ data: { status: 'ok' } });
 
       renderHealth();
 
@@ -199,7 +199,7 @@ describe('Health Page', () => {
     });
 
     it('does not retry on error (retry: false)', async () => {
-      (api.get as jest.Mock).mockRejectedValue(new Error('Error'));
+      (api.get as vi.Mock).mockRejectedValue(new Error('Error'));
 
       renderHealth();
 
@@ -214,7 +214,7 @@ describe('Health Page', () => {
 
   describe('UI/UX', () => {
     it('renders with proper heading', async () => {
-      (api.get as jest.Mock).mockResolvedValue({ data: { status: 'ok' } });
+      (api.get as vi.Mock).mockResolvedValue({ data: { status: 'ok' } });
 
       renderHealth();
 
@@ -230,7 +230,7 @@ describe('Health Page', () => {
 
     it('displays data in a preformatted block with proper styling', async () => {
       const mockHealthData: HealthData = { status: 'ok' };
-      (api.get as jest.Mock).mockResolvedValue({ data: mockHealthData });
+      (api.get as vi.Mock).mockResolvedValue({ data: mockHealthData });
 
       renderHealth();
 
@@ -249,7 +249,7 @@ describe('Health Page', () => {
         resolvePromise = resolve;
       });
 
-      (api.get as jest.Mock).mockImplementation(() => promise);
+      (api.get as vi.Mock).mockImplementation(() => promise);
 
       renderHealth();
 
@@ -272,7 +272,7 @@ describe('Health Page', () => {
         rejectPromise = reject;
       });
 
-      (api.get as jest.Mock).mockImplementation(() => promise);
+      (api.get as vi.Mock).mockImplementation(() => promise);
 
       renderHealth();
 

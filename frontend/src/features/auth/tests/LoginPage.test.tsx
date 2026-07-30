@@ -23,7 +23,7 @@ vi.mock('react-router-dom', async () => {
 
 describe('LoginPage', () => {
   const mockLoginAction = vi.fn();
-  const mockUseAuth = useAuth as unknown as jest.Mock;
+  const mockUseAuth = useAuth as unknown as vi.Mock;
 
   beforeEach(() => {
     vi.clearAllMocks();

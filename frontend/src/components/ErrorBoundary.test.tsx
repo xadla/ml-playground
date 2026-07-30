@@ -11,21 +11,25 @@ import ErrorBoundary from '@/components/ErrorBoundary';
 // A component that throws an error
 function ThrowError({ message }: { message?: string }) {
   throw new Error(message || 'Test error message');
+  return <div>This won't render</div>;
 }
 
 // A component that doesn't throw
 function SafeComponent() {
   return <div data-testid="safe-component">I am safe!</div>;
+  return <div>This won't render</div>;
 }
 
 // A component that throws a specific error type
 function ThrowTypeError() {
   throw new TypeError('Type error message');
+  return <div>This won't render</div>;
 }
 
 // A component that throws with no message
 function ThrowNoMessage() {
   throw new Error();
+  return <div>This won't render</div>;
 }
 
 // Reset window.location.reload mock
@@ -309,6 +313,7 @@ describe('ErrorBoundary', () => {
 
       function ThrowNullError() {
         throw nullError;
+        return <div>This won't render</div>;
       }
 
       render(
@@ -327,6 +332,7 @@ describe('ErrorBoundary', () => {
 
       function ThrowString() {
         throw 'String error';
+        return <div>This won't render</div>;
       }
 
       render(
