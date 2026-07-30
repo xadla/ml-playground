@@ -47,7 +47,7 @@ export default function HistoryList() {
       if (selected.length === data.items.length) {
         setSelected([]);
       } else {
-        setSelected(data.items.map((item) => item.experiment_id));
+        setSelected(data.items.map((item) => item.id));
       }
     }
   };
@@ -245,7 +245,7 @@ export default function HistoryList() {
                   <div
                     key={item.id}
                     className={`group bg-white dark:bg-gray-800 rounded-2xl border shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden ${
-                      selected.includes(item.experiment_id)
+                      selected.includes(item.id)
                         ? 'border-indigo-500 ring-2 ring-indigo-200 dark:ring-indigo-800'
                         : 'border-gray-200 dark:border-gray-700'
                     }`}
@@ -278,8 +278,8 @@ export default function HistoryList() {
                         <input
                           type="checkbox"
                           className="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 mt-1"
-                          checked={selected.includes(item.experiment_id)}
-                          onChange={() => toggleSelect(item.experiment_id)}
+                          checked={selected.includes(item.id)}
+                          onChange={() => toggleSelect(item.id)}
                         />
                       </div>
 
@@ -301,7 +301,7 @@ export default function HistoryList() {
                       {/* Actions */}
                       <div className="flex items-center gap-3 mt-4 pt-4 border-t border-gray-100 dark:border-gray-700">
                         <button
-                          onClick={() => navigate(`/experiments/${item.experiment_id}`)}
+                          onClick={() => navigate(`/experiments/${item.id}`)}
                           className="flex-1 py-2 text-sm font-medium text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 rounded-lg transition"
                         >
                           View
