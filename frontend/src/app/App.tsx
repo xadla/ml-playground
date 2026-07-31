@@ -24,7 +24,7 @@ const BuiltinDatasets = lazy(() => import('@/features/datasets/pages/BuiltinData
 const UploadDataset = lazy(() => import('@/features/datasets/pages/UploadDataset'));
 const HistoryList = lazy(() => import('@/features/history/pages/HistoryList'));
 const Compare = lazy(() => import('@/features/history/pages/Compare'));
-const NotFound = lazy(() => import('@/pages/NotFound/NotFound'));
+const NotFound = lazy(() => import('@/pages/Errors/NotFound'));
 
 function App() {
   return (
