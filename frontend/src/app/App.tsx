@@ -8,6 +8,7 @@ import ProtectedRoute from '@/components/ProtectedRoute';
 import { AuthProvider } from '@/contexts/AuthContext';
 import ErrorBoundary from '@/components/ErrorBoundary';
 import PageLoader from '@/components/PageLoader';
+import CookieConsent from 'react-cookie-consent';
 
 // Lazy‑loaded pages (code‑split per route)
 const Home = lazy(() => import('@/pages/Home/Home'));
@@ -112,6 +113,32 @@ function App() {
               </Route>
             </Routes>
           </Suspense>
+          <CookieConsent
+            location="bottom"
+            buttonText="Accept"
+            declineButtonText="Decline"
+            enableDeclineButton
+            cookieName="ml_playground_cookie_consent"
+            style={{ background: '#1e1b4b' }}
+            buttonStyle={{
+              background: '#6366f1',
+              color: '#fff',
+              fontSize: '14px',
+              borderRadius: '0.75rem',
+            }}
+            declineButtonStyle={{
+              background: '#4b5563',
+              color: '#fff',
+              fontSize: '14px',
+              borderRadius: '0.75rem',
+            }}
+          >
+            This website uses cookies to enhance the user experience. See our{' '}
+            <a href="/privacy" className="underline text-indigo-300">
+              Privacy Policy
+            </a>
+            .
+          </CookieConsent>
         </AuthProvider>
       </HelmetProvider>
     </ErrorBoundary>
