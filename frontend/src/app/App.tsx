@@ -30,6 +30,9 @@ const ServerError = lazy(() => import('@/pages/Errors/ServerError'));
 const Unauthorized = lazy(() => import('@/pages/Errors/Unauthorized'));
 const Forbidden = lazy(() => import('@/pages/Errors/Forbidden'));
 const Maintenance = lazy(() => import('@/pages/Errors/Maintenance'));
+const TermsOfService = lazy(() => import('@/pages/legal/TermsOfService'));
+const PrivacyPolicy = lazy(() => import('@/pages/legal/PrivacyPolicy'));
+const Contact = lazy(() => import('@/pages/Contact/Contact'));
 
 function App() {
   return (
@@ -47,6 +50,9 @@ function App() {
                 <Route path="verify-email" element={<VerifyEmailPage />} />
                 <Route path="resend-verification" element={<ResendVerificationPage />} />
                 <Route path="datasets/builtin" element={<BuiltinDatasets />} />
+                <Route path="terms" element={<TermsOfService />} />
+                <Route path="privacy" element={<PrivacyPolicy />} />
+                <Route path="contact" element={<Contact />} />
 
                 {/* Protected routes */}
                 <Route
