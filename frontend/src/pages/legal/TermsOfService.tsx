@@ -46,7 +46,7 @@ export default function TermsOfService() {
             </p>
 
             <h2>6. Contact</h2>
-            <p>For any questions about these terms, please contact us at legal@mlplayground.com.</p>
+            <p>For any questions about these terms, please contact us at hadinjr4122@gmail.com.</p>
           </article>
         </div>
       </div>
