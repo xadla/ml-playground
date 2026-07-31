@@ -8,6 +8,7 @@ import ProtectedRoute from '@/components/ProtectedRoute';
 import { AuthProvider } from '@/contexts/AuthContext';
 import ErrorBoundary from '@/components/ErrorBoundary';
 import PageLoader from '@/components/PageLoader';
+import CookieConsent from 'react-cookie-consent';
 
 // Lazy‑loaded pages (code‑split per route)
 const Home = lazy(() => import('@/pages/Home/Home'));
@@ -29,6 +30,9 @@ const ServerError = lazy(() => import('@/pages/Errors/ServerError'));
 const Unauthorized = lazy(() => import('@/pages/Errors/Unauthorized'));
 const Forbidden = lazy(() => import('@/pages/Errors/Forbidden'));
 const Maintenance = lazy(() => import('@/pages/Errors/Maintenance'));
+const TermsOfService = lazy(() => import('@/pages/legal/TermsOfService'));
+const PrivacyPolicy = lazy(() => import('@/pages/legal/PrivacyPolicy'));
+const Contact = lazy(() => import('@/pages/Contact/Contact'));
 
 function App() {
   return (
@@ -46,6 +50,9 @@ function App() {
                 <Route path="verify-email" element={<VerifyEmailPage />} />
                 <Route path="resend-verification" element={<ResendVerificationPage />} />
                 <Route path="datasets/builtin" element={<BuiltinDatasets />} />
+                <Route path="terms" element={<TermsOfService />} />
+                <Route path="privacy" element={<PrivacyPolicy />} />
+                <Route path="contact" element={<Contact />} />
 
                 {/* Protected routes */}
                 <Route
@@ -112,6 +119,32 @@ function App() {
               </Route>
             </Routes>
           </Suspense>
+          <CookieConsent
+            location="bottom"
+            buttonText="Accept"
+            declineButtonText="Decline"
+            enableDeclineButton
+            cookieName="ml_playground_cookie_consent"
+            style={{ background: '#1e1b4b' }}
+            buttonStyle={{
+              background: '#6366f1',
+              color: '#fff',
+              fontSize: '14px',
+              borderRadius: '0.75rem',
+            }}
+            declineButtonStyle={{
+              background: '#4b5563',
+              color: '#fff',
+              fontSize: '14px',
+              borderRadius: '0.75rem',
+            }}
+          >
+            This website uses cookies to enhance the user experience. See our{' '}
+            <a href="/privacy" className="underline text-indigo-300">
+              Privacy Policy
+            </a>
+            .
+          </CookieConsent>
         </AuthProvider>
       </HelmetProvider>
     </ErrorBoundary>

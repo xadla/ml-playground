@@ -252,24 +252,24 @@ const MainLayout = () => {
               </span>
             </div>
             <div className="flex gap-6">
-              <a
-                href="#"
-                className="text-sm text-gray-500 hover:text-indigo-600 dark:text-gray-400 dark:hover:text-indigo-400 transition"
-              >
-                About
-              </a>
-              <a
-                href="#"
-                className="text-sm text-gray-500 hover:text-indigo-600 dark:text-gray-400 dark:hover:text-indigo-400 transition"
-              >
-                Privacy
-              </a>
-              <a
-                href="#"
+              <Link
+                to="/terms"
                 className="text-sm text-gray-500 hover:text-indigo-600 dark:text-gray-400 dark:hover:text-indigo-400 transition"
               >
                 Terms
-              </a>
+              </Link>
+              <Link
+                to="/privacy"
+                className="text-sm text-gray-500 hover:text-indigo-600 dark:text-gray-400 dark:hover:text-indigo-400 transition"
+              >
+                Privacy
+              </Link>
+              <Link
+                to="/contact"
+                className="text-sm text-gray-500 hover:text-indigo-600 dark:text-gray-400 dark:hover:text-indigo-400 transition"
+              >
+                Contact
+              </Link>
             </div>
           </div>
         </div>

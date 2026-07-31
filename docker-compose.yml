@@ -69,6 +69,7 @@ services:
       - ./frontend/index.html:/app/index.html
     environment:
       - VITE_API_URL=http://localhost:8000/api/v1
+      - VITE_MAINTENANCE_MODE=false
       - NODE_ENV=development
     depends_on:
       - backend
