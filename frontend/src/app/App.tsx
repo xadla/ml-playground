@@ -24,6 +24,11 @@ const BuiltinDatasets = lazy(() => import('@/features/datasets/pages/BuiltinData
 const UploadDataset = lazy(() => import('@/features/datasets/pages/UploadDataset'));
 const HistoryList = lazy(() => import('@/features/history/pages/HistoryList'));
 const Compare = lazy(() => import('@/features/history/pages/Compare'));
+const NotFound = lazy(() => import('@/pages/Errors/NotFound'));
+const ServerError = lazy(() => import('@/pages/Errors/ServerError'));
+const Unauthorized = lazy(() => import('@/pages/Errors/Unauthorized'));
+const Forbidden = lazy(() => import('@/pages/Errors/Forbidden'));
+const Maintenance = lazy(() => import('@/pages/Errors/Maintenance'));
 
 function App() {
   return (
@@ -99,6 +104,11 @@ function App() {
                     </ProtectedRoute>
                   }
                 />
+                <Route path="500" element={<ServerError />} />
+                <Route path="401" element={<Unauthorized />} />
+                <Route path="403" element={<Forbidden />} />
+                <Route path="503" element={<Maintenance />} />
+                <Route path="*" element={<NotFound />} />
               </Route>
             </Routes>
           </Suspense>
