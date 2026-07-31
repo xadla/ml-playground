@@ -9,6 +9,7 @@ import { AuthProvider } from '@/contexts/AuthContext';
 import ErrorBoundary from '@/components/ErrorBoundary';
 import PageLoader from '@/components/PageLoader';
 import CookieConsent from 'react-cookie-consent';
+import { Toaster } from 'sonner';
 
 // Lazy‑loaded pages (code‑split per route)
 const Home = lazy(() => import('@/pages/Home/Home'));
@@ -38,6 +39,7 @@ function App() {
   return (
     <ErrorBoundary>
       <HelmetProvider>
+        <Toaster position="top-right" richColors />
         <AuthProvider>
           <Suspense fallback={<PageLoader />}>
             <Routes>
