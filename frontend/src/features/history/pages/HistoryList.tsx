@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { historyService } from '@/features/history/services/historyService';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Helmet } from 'react-helmet-async';
+import ConfirmModal from '@/components/ui/ConfirmModal';
 
 export default function HistoryList() {
   const navigate = useNavigate();
@@ -15,6 +16,7 @@ export default function HistoryList() {
   const [sort, setSort] = useState('created_at');
   const [order, setOrder] = useState('desc');
   const [selected, setSelected] = useState<string[]>([]);
+  const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
 
   // Data
   const { data, isLoading, error } = useQuery({
@@ -25,12 +27,11 @@ export default function HistoryList() {
   // Delete mutation
   const deleteMutation = useMutation({
     mutationFn: (id: string) => historyService.deleteExperiment(id),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['history'] }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['history'] });
+      setDeleteTarget(null); // Close modal on success
+    },
   });
-
-  const handleDelete = (id: string) => {
-    if (confirm('Permanently delete this experiment?')) deleteMutation.mutate(id);
-  };
 
   const handleCompare = () => {
     if (selected.length >= 2) {
@@ -307,7 +308,7 @@ export default function HistoryList() {
                           View
                         </button>
                         <button
-                          onClick={() => handleDelete(item.id)}
+                          onClick={() => setDeleteTarget(item.id)}
                           className="flex-1 py-2 text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition"
                         >
                           Delete
@@ -338,6 +339,20 @@ export default function HistoryList() {
                   Next
                 </button>
               </div>
+              <ConfirmModal
+                isOpen={!!deleteTarget}
+                title="Delete Experiment"
+                message="Are you sure? This action cannot be undone."
+                confirmLabel="Delete"
+                variant="danger"
+                isLoading={deleteMutation.isPending}
+                onConfirm={() => {
+                  if (deleteTarget) {
+                    deleteMutation.mutate(deleteTarget);
+                  }
+                }}
+                onCancel={() => setDeleteTarget(null)}
+              />
             </>
           )}
         </div>
