@@ -74,5 +74,5 @@ coverage.xml
 # Icon
 # ============================================
 favicon.ico
-favicon.svg
+# favicon.svg
 favicon.png
