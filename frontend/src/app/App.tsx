@@ -9,6 +9,7 @@ import { AuthProvider } from '@/contexts/AuthContext';
 import ErrorBoundary from '@/components/ErrorBoundary';
 import PageLoader from '@/components/PageLoader';
 import ScrollToTop from '@/components/ScrollToTop';
+import BackToTop from '@/components/BackToTop';
 import CookieConsent from 'react-cookie-consent';
 import { Toaster } from 'sonner';
 
@@ -44,6 +45,7 @@ function App() {
         <AuthProvider>
           <Suspense fallback={<PageLoader />}>
             <ScrollToTop />
+            <BackToTop />
             <Routes>
               <Route element={<MainLayout />}>
                 {/* Public routes */}
