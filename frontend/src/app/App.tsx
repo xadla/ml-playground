@@ -8,6 +8,7 @@ import ProtectedRoute from '@/components/ProtectedRoute';
 import { AuthProvider } from '@/contexts/AuthContext';
 import ErrorBoundary from '@/components/ErrorBoundary';
 import PageLoader from '@/components/PageLoader';
+import ScrollToTop from '@/components/ScrollToTop';
 import CookieConsent from 'react-cookie-consent';
 import { Toaster } from 'sonner';
 
@@ -42,6 +43,7 @@ function App() {
         <Toaster position="top-right" richColors />
         <AuthProvider>
           <Suspense fallback={<PageLoader />}>
+            <ScrollToTop />
             <Routes>
               <Route element={<MainLayout />}>
                 {/* Public routes */}
