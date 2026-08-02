@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { getErrorMessage } from '@/lib/utils/error';
 import { Helmet } from 'react-helmet-async';
+import { toast } from 'sonner';
 
 const LoginPage = () => {
   const { loginAction, user } = useAuth();
@@ -14,6 +15,7 @@ const LoginPage = () => {
 
   useEffect(() => {
     if (user) {
+      toast.success(`Welcome back ${email}`);
       navigate('/dashboard');
     }
   }, [user, navigate]);

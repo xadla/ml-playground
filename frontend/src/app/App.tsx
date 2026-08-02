@@ -8,7 +8,10 @@ import ProtectedRoute from '@/components/ProtectedRoute';
 import { AuthProvider } from '@/contexts/AuthContext';
 import ErrorBoundary from '@/components/ErrorBoundary';
 import PageLoader from '@/components/PageLoader';
+import ScrollToTop from '@/components/ScrollToTop';
+import BackToTop from '@/components/BackToTop';
 import CookieConsent from 'react-cookie-consent';
+import { Toaster } from 'sonner';
 
 // Lazy‑loaded pages (code‑split per route)
 const Home = lazy(() => import('@/pages/Home/Home'));
@@ -38,8 +41,11 @@ function App() {
   return (
     <ErrorBoundary>
       <HelmetProvider>
+        <Toaster position="top-right" richColors />
         <AuthProvider>
           <Suspense fallback={<PageLoader />}>
+            <ScrollToTop />
+            <BackToTop />
             <Routes>
               <Route element={<MainLayout />}>
                 {/* Public routes */}

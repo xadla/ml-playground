@@ -1,5 +1,5 @@
 <h1 align="center">
-  <img src="docs/logo.png" alt="ML Playground" width="80"/>
+  <img src="docs/favicon.svg" alt="ML Playground" width="80"/>
   <br>
   ML Playground
 </h1>
