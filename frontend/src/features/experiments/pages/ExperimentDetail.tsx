@@ -8,6 +8,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import type { ExperimentStatus } from '@/features/experiments/types';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Helmet } from 'react-helmet-async';
+import { toast } from 'sonner';
 
 // ----- Status config -----
 const statusMeta: Record<string, { label: string; bg: string; text: string; dot: string }> = {
@@ -60,8 +61,7 @@ export default function ExperimentDetail() {
   const saveMutation = useMutation({
     mutationFn: () => saveExperiment(id!),
     onSuccess: () => {
-      // Could show a toast or brief success message
-      alert('Experiment saved to history!');
+      toast.success('The Experiment has been saved successfully');
     },
   });
 

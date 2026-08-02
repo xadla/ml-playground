@@ -5,6 +5,7 @@ import { verifyEmail } from '@/features/auth/services/authService';
 import { getMe } from '@/features/auth/services/authService';
 import { getErrorMessage } from '@/lib/utils/error';
 import { Helmet } from 'react-helmet-async';
+import { toast } from 'sonner';
 
 const VerifyEmailPage = () => {
   const [searchParams] = useSearchParams();
@@ -35,6 +36,7 @@ const VerifyEmailPage = () => {
         setTokenAndUser(verifyRes.access_token, user);
 
         setStatus('success');
+        toast.success('Your Account Created Successsfully');
         setTimeout(() => navigate('/dashboard'), 1500);
       } catch (err) {
         if (cancelled) return;
