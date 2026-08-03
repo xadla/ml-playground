@@ -28,6 +28,8 @@ dependencies = [
     "schemathesis>=4.4.0",
     "structlog>=22.1.0",
     "psycopg2-binary>=2.9.0",
+    "prometheus-fastapi-instrumentator>=7.0",
+    "prometheus-client>=0.21",
 ]
 
 [project.optional-dependencies]
