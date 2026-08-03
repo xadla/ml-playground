@@ -1524,6 +1524,8 @@ dependencies = [
     { name = "numpy", version = "2.5.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.12'" },
     { name = "passlib", extra = ["bcrypt"] },
     { name = "pillow" },
+    { name = "prometheus-client" },
+    { name = "prometheus-fastapi-instrumentator" },
     { name = "psycopg2-binary" },
     { name = "pydantic" },
     { name = "pydantic-settings" },
@@ -1578,6 +1580,8 @@ requires-dist = [
     { name = "passlib", extras = ["bcrypt"], specifier = ">=1.7.0" },
     { name = "pillow", specifier = ">=10.0" },
     { name = "polyfactory", marker = "extra == 'dev'", specifier = "==2.18.0" },
+    { name = "prometheus-client", specifier = ">=0.21" },
+    { name = "prometheus-fastapi-instrumentator", specifier = ">=7.0" },
     { name = "psycopg2-binary", specifier = ">=2.9.0" },
     { name = "pydantic", specifier = ">=2.10.0" },
     { name = "pydantic-settings", specifier = ">=2.7.0" },
@@ -1591,7 +1595,7 @@ requires-dist = [
     { name = "scikit-learn", specifier = ">=1.5" },
     { name = "slowapi", specifier = ">=0.1.6" },
     { name = "sqlalchemy", extras = ["asyncio"], specifier = ">=2.0.0" },
-    { name = "structlog", specifier = ">=20.1.0" },
+    { name = "structlog", specifier = ">=22.1.0" },
     { name = "types-passlib", marker = "extra == 'dev'", specifier = "==1.7.7" },
     { name = "types-python-jose", marker = "extra == 'dev'", specifier = "==3.3.0" },
     { name = "types-redis", marker = "extra == 'dev'", specifier = "==4.6.0" },
@@ -1886,6 +1890,28 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/f4/57/cb9cbdc20b0583ce8e4e5a5e6e711eb2cca08ae868a4a677c95fbee55dde/polyfactory-2.18.0.tar.gz", hash = "sha256:04d8b4d4986e406cd4c16cc01e8bb747083842d57a5c0dba63a21ee5ef75ba66", size = 184682, upload-time = "2024-11-06T00:59:08.163Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/26/ba/353c85708c0409a0406b0c9f0f4aaa7c21fad6133e074623ba715db54ac3/polyfactory-2.18.0-py3-none-any.whl", hash = "sha256:2d9163e5e3971a4e82fac5d37048b09ae26cfc4173ebcf0047370c288e339307", size = 59086, upload-time = "2024-11-06T00:59:05.58Z" },
+]
+
+[[package]]
+name = "prometheus-client"
+version = "0.26.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/52/73/f1334c29c2af4cd9dba6c7817e61b611bd0215e2eb5565c6064a4de18802/prometheus_client-0.26.0.tar.gz", hash = "sha256:04a91bcf94e2cf74a44a1a874d651a2e853ed354b6e822f3b7487751465d5c2b", size = 92910, upload-time = "2026-07-24T19:36:41.893Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/eb/a3/b69efbf4143b5b9859b977770bbbabcc2796b702fa69dc40271e45cd5a56/prometheus_client-0.26.0-py3-none-any.whl", hash = "sha256:fa93d06737aa02bacd05794768508bb97d2fbee28cb3bca04eaae92f0ca953d6", size = 64494, upload-time = "2026-07-24T19:36:40.854Z" },
+]
+
+[[package]]
+name = "prometheus-fastapi-instrumentator"
+version = "7.1.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "prometheus-client" },
+    { name = "starlette" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/69/6d/24d53033cf93826aa7857699a4450c1c67e5b9c710e925b1ed2b320c04df/prometheus_fastapi_instrumentator-7.1.0.tar.gz", hash = "sha256:be7cd61eeea4e5912aeccb4261c6631b3f227d8924542d79eaf5af3f439cbe5e", size = 20220, upload-time = "2025-03-19T19:35:05.351Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/27/72/0824c18f3bc75810f55dacc2dd933f6ec829771180245ae3cc976195dec0/prometheus_fastapi_instrumentator-7.1.0-py3-none-any.whl", hash = "sha256:978130f3c0bb7b8ebcc90d35516a6fe13e02d2eb358c8f83887cdef7020c31e9", size = 19296, upload-time = "2025-03-19T19:35:04.323Z" },
 ]
 
 [[package]]

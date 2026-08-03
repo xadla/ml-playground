@@ -2,6 +2,7 @@ from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from prometheus_fastapi_instrumentator import Instrumentator
 from slowapi.errors import RateLimitExceeded
 from slowapi.middleware import SlowAPIMiddleware
 from starlette.exceptions import HTTPException as StarletteHTTPException
@@ -30,6 +31,18 @@ def create_app() -> FastAPI:
         openapi_url=f"{settings.API_V1_PREFIX}/openapi.json",
         docs_url=f"{settings.API_V1_PREFIX}/docs",
         redoc_url=f"{settings.API_V1_PREFIX}/redoc",
+    )
+
+    # --- Prometheus metrics ---
+    instrumentator = Instrumentator(
+        should_group_status_codes=True,
+        should_ignore_untemplated=True,
+        should_respect_env_var=True,
+        should_instrument_requests_inprogress=True,
+        excluded_handlers=[".*admin.*", "/metrics"],
+    )
+    instrumentator.instrument(app).expose(
+        app, endpoint="/metrics", include_in_schema=True
     )
 
     # Logging

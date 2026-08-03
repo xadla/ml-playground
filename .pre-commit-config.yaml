@@ -44,6 +44,8 @@ repos:
           - pillow>=10.0
           - schemathesis>=4.0.0
           - structlog>=20.1.0
+          - prometheus-fastapi-instrumentator>=7.0
+          - prometheus-client>=0.21
         # No args — reads from [tool.mypy] in pyproject.toml
         files: ^backend/.*\.py$
 
