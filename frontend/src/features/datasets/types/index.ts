@@ -6,6 +6,10 @@ export interface BuiltinDataset {
   columns: string[];
 }
 
+export interface BuiltinDatasetsResponse {
+  datasets: BuiltinDataset[];
+}
+
 export interface UploadedDataset {
   id: string;
   name: string;
