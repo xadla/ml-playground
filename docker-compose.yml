@@ -98,6 +98,26 @@ services:
       - backend
 
   # ============================================
+  # Grafana
+  # ============================================
+  grafana:
+    image: grafana/grafana:latest
+    container_name: ml-grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin  # change in production!
+    volumes:
+      - ./grafana/datasources:/etc/grafana/provisioning/datasources:ro
+      - ./grafana/dashboards:/etc/grafana/provisioning/dashboards:ro
+      - ./grafana/dashboards_json:/var/lib/grafana/dashboards_json:ro
+      - grafana_data:/var/lib/grafana
+    networks:
+      - ml-network
+    depends_on:
+      - prometheus
+
+  # ============================================
   # PostgreSQL
   # ============================================
   db:
@@ -153,6 +173,7 @@ volumes:
   redis_data:
   plots_data:
   prometheus_data:
+  grafana_data:
 
 networks:
   ml-network:

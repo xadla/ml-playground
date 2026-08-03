@@ -1,7 +1,8 @@
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, PlainTextResponse
+from prometheus_client import CONTENT_TYPE_LATEST, generate_latest
 from prometheus_fastapi_instrumentator import Instrumentator
 from slowapi.errors import RateLimitExceeded
 from slowapi.middleware import SlowAPIMiddleware
@@ -31,18 +32,6 @@ def create_app() -> FastAPI:
         openapi_url=f"{settings.API_V1_PREFIX}/openapi.json",
         docs_url=f"{settings.API_V1_PREFIX}/docs",
         redoc_url=f"{settings.API_V1_PREFIX}/redoc",
-    )
-
-    # --- Prometheus metrics ---
-    instrumentator = Instrumentator(
-        should_group_status_codes=True,
-        should_ignore_untemplated=True,
-        should_respect_env_var=True,
-        should_instrument_requests_inprogress=True,
-        excluded_handlers=[".*admin.*", "/metrics"],
-    )
-    instrumentator.instrument(app).expose(
-        app, endpoint="/metrics", include_in_schema=True
     )
 
     # Logging
@@ -88,6 +77,22 @@ def create_app() -> FastAPI:
     app.include_router(experiments_router, prefix=settings.API_V1_PREFIX)
     app.include_router(history_router, prefix=settings.API_V1_PREFIX)
     app.include_router(plots_router, prefix=settings.API_V1_PREFIX)
+
+    # --- Prometheus metrics ---
+    instrumentator = Instrumentator(
+        should_group_status_codes=True,
+        should_ignore_untemplated=True,
+        should_respect_env_var=True,
+        should_instrument_requests_inprogress=True,
+        excluded_handlers=[".*admin.*", "/metrics"],
+    )
+
+    instrumentator.instrument(app)
+
+    # Manual metrics endpoint
+    @app.get("/metrics", include_in_schema=True, tags=["metrics"])
+    async def metrics():
+        return PlainTextResponse(generate_latest(), media_type=CONTENT_TYPE_LATEST)
 
     # Error handlers
     app.add_exception_handler(AppError, app_error_handler)
