@@ -14,10 +14,6 @@ env:
 
 jobs:
 
-  ##############################################
-  # Lint
-  ##############################################
-
   lint:
     runs-on: ubuntu-latest
 
@@ -31,17 +27,11 @@ jobs:
 
       - run: |
           python -m pip install --upgrade pip
-          pip install -e ".[dev]"
+          cd backend && pip install -e ".[dev]"
 
       - run: ruff check .
 
       - run: ruff format --check .
-
-
-
-  ##############################################
-  # Type Checking
-  ##############################################
 
   mypy:
     runs-on: ubuntu-latest
@@ -56,15 +46,9 @@ jobs:
 
       - run: |
           python -m pip install --upgrade pip
-          pip install -e ".[dev]"
+          cd backend && pip install -e ".[dev]"
 
-      - run: mypy app
-
-
-
-  ##############################################
-  # Tests
-  ##############################################
+      - run: cd backend && mypy app
 
   tests:
 
@@ -117,20 +101,20 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -e ".[dev]"
+          cd backend && pip install -e ".[dev]"
 
       - name: Run Alembic migrations
         run: |
-          alembic upgrade head
+          cd backend && alembic upgrade head
 
       - name: Start Celery Worker
         run: |
-          celery -A app.celery_app worker --loglevel=INFO &
+          cd backend && celery -A app.celery_app worker --loglevel=INFO &
           sleep 5
 
       - name: Run Tests
         run: |
-          pytest \
+          cd backend && pytest \
             tests/unit \
             tests/integration \
             -v \
@@ -144,12 +128,6 @@ jobs:
         with:
           name: coverage-report
           path: coverage.xml
-
-
-
-  ##############################################
-  # Contract Testing
-  ##############################################
 
   contract:
 
@@ -187,13 +165,13 @@ jobs:
 
       - run: |
           python -m pip install --upgrade pip
-          pip install -e ".[dev]"
+          cd backend && pip install -e ".[dev]"
 
-      - run: alembic upgrade head
+      - run: cd backend && alembic upgrade head
 
       - name: Start API
         run: |
-          uvicorn app.main:app --host 0.0.0.0 --port 8000 &
+          cd backend && uvicorn app.main:app --host 0.0.0.0 --port 8000 &
           until curl http://localhost:8000/health
           do
             sleep 1
@@ -206,12 +184,6 @@ jobs:
           --base-url=http://localhost:8000 \
           --workers=auto \
           --hypothesis-max-examples=50
-
-
-
-  ##############################################
-  # Docker Build
-  ##############################################
 
   docker:
 
