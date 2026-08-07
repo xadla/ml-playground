@@ -144,6 +144,10 @@ function DatasetCard({ dataset, onUse }: { dataset: BuiltinDataset; onUse: () =>
   ];
   const randomGradient = gradients[dataset.name.length % gradients.length];
 
+  const columns = Array.isArray(dataset.columns) ? dataset.columns : [];
+  const displayColumns = columns.slice(0, 4);
+  const hasMoreColumns = columns.length > 4;
+
   return (
     <div className="group bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-lg hover:border-indigo-300 dark:hover:border-indigo-700 transition-all duration-300 flex flex-col overflow-hidden">
       {/* Top accent bar */}
@@ -166,10 +170,10 @@ function DatasetCard({ dataset, onUse }: { dataset: BuiltinDataset; onUse: () =>
           </div>
           <div>
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
-              {dataset.name}
+              {dataset.name || 'Unnamed Dataset'}
             </h3>
             <p className="text-sm text-gray-500 dark:text-gray-400 mt-1 line-clamp-2">
-              {dataset.description}
+              {dataset.description || 'No description available'}
             </p>
           </div>
         </div>
@@ -185,7 +189,7 @@ function DatasetCard({ dataset, onUse }: { dataset: BuiltinDataset; onUse: () =>
                 d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"
               />
             </svg>
-            {dataset.rows} rows
+            {dataset.rows || 0} rows
           </span>
           <span className="flex items-center gap-1">
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -196,13 +200,13 @@ function DatasetCard({ dataset, onUse }: { dataset: BuiltinDataset; onUse: () =>
                 d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"
               />
             </svg>
-            {dataset.columns.length} columns
+            {columns.length} columns
           </span>
         </div>
 
         {/* Column tags */}
         <div className="flex flex-wrap gap-1.5 mb-5">
-          {dataset.columns.slice(0, 4).map((col) => (
+          {displayColumns.map((col) => (
             <span
               key={col}
               className="px-2 py-0.5 text-xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 rounded-md"
@@ -210,9 +214,9 @@ function DatasetCard({ dataset, onUse }: { dataset: BuiltinDataset; onUse: () =>
               {col}
             </span>
           ))}
-          {dataset.columns.length > 4 && (
+          {hasMoreColumns && (
             <span className="px-2 py-0.5 text-xs text-gray-400 dark:text-gray-500">
-              +{dataset.columns.length - 4} more
+              +{columns.length - 4} more
             </span>
           )}
         </div>

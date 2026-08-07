@@ -3,8 +3,23 @@ import type { BuiltinDataset, UploadResponse } from '@/features/datasets/types';
 
 export const datasetService = {
   getBuiltinDatasets: async (): Promise<BuiltinDataset[]> => {
-    const res = await api.get<BuiltinDataset[]>('/datasets/builtin');
-    return res.data;
+    try {
+      const res = await api.get('/datasets/builtin');
+
+      let datasets: BuiltinDataset[] = [];
+
+      if (res.data && res.data.datasets && Array.isArray(res.data.datasets)) {
+        datasets = res.data.datasets;
+      } else if (Array.isArray(res.data)) {
+        datasets = res.data;
+      } else {
+        datasets = [];
+      }
+
+      return datasets; // Always returns an array
+    } catch (error) {
+      return []; // Return empty array on error
+    }
   },
 
   uploadDataset: async (
