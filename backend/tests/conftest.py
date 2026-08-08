@@ -30,7 +30,7 @@ from app.models.domain.enums import DatasetTypeEnum
 
 
 # Async engine for integration tests
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="function")
 def engine() -> AsyncEngine:
     """Create async engine for integration tests."""
     return create_async_engine(
@@ -41,7 +41,7 @@ def engine() -> AsyncEngine:
 
 
 # Sync engine for contract tests
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="function")
 def sync_engine():
     """Create sync engine for contract tests and cleanup."""
     return create_engine(settings.SYNC_TEST_DB_URL, echo=False)
@@ -53,7 +53,7 @@ def sync_engine():
 
 
 # For integration tests (async)
-@pytest.fixture(scope="session", autouse=True)
+@pytest.fixture(scope="function", autouse=True)
 async def create_tables(engine: AsyncEngine) -> AsyncGenerator[None, None]:
     """Create all tables for integration tests."""
     async with engine.begin() as conn:
@@ -64,7 +64,7 @@ async def create_tables(engine: AsyncEngine) -> AsyncGenerator[None, None]:
 
 
 # For contract tests (sync)
-@pytest.fixture(scope="session", autouse=True)
+@pytest.fixture(scope="function", autouse=True)
 def create_sync_tables(sync_engine):
     """Create all tables for contract tests."""
     Base.metadata.create_all(sync_engine)
