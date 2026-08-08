@@ -16,18 +16,23 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/build-passing-brightgreen" alt="Build Status"/>
+  <a href="https://github.com/xadla/ml-playground/actions/workflows/ci.yml"><img src="https://github.com/xadla/ml-playground/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
+  <a href="https://github.com/xadla/ml-playground/actions/workflows/lint.yml"><img src="https://github.com/xadla/ml-playground/actions/workflows/lint.yml/badge.svg" alt="Lint"></a>
   <img src="https://img.shields.io/badge/license-MIT-blue" alt="License"/>
-  <img src="https://img.shields.io/badge/docs-complete-brightgreen" alt="Documentation"/>
   <img src="https://img.shields.io/badge/PRs-welcome-brightgreen" alt="PRs Welcome"/>
   <img src="https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit" alt="pre-commit"/>
   <img src="https://img.shields.io/badge/ruff-enabled-blue?logo=python" alt="Ruff"/>
   <img src="https://img.shields.io/badge/mypy-strict-blue" alt="mypy"/>
   <img src="https://img.shields.io/badge/ESLint-enabled-4B32C3?logo=eslint" alt="ESLint"/>
   <img src="https://img.shields.io/badge/Prettier-enabled-F7B93E?logo=prettier" alt="Prettier"/>
+  <img src="https://img.shields.io/badge/Prometheus-E6522C?style=flat&logo=prometheus&logoColor=white" alt="Prometheus"/>
+  <img src="https://img.shields.io/badge/Grafana-F46800?style=flat&logo=grafana&logoColor=white" alt="Grafana"/>
 </p>
 
-![Demo Screenshot](docs/wireframes/demo.gif)
+<!-- Main demo GIF or screenshot -->
+<p align="center">
+  <img src="docs/screenshots/demo.gif" alt="Demo" width="800"/>
+</p>
 
 ---
 
