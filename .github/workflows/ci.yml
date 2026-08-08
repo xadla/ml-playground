@@ -7,7 +7,7 @@ on:
     branches: [main]
 
 env:
-  DATABASE_URL: postgresql+asyncpg://postgres:postgres@localhost:5432/test_db
+  DATABASE_URL: postgresql+asyncpg://postgres:postgres@localhost:5433/mlplayground_test
   REDIS_URL: redis://localhost:6379/0
   CELERY_BROKER_URL: redis://localhost:6379/0
   CELERY_RESULT_BACKEND: redis://localhost:6379/0
