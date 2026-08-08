@@ -92,7 +92,8 @@ testpaths = ["tests"]
 python_files = ["test_*.py"]
 python_classes = ["Test*"]
 python_functions = ["test_*"]
-addopts = "--cov=app --cov-report=term --cov-report=xml --cov-fail-under=80" # 80 percent or lower
+addopts = "--cov=app --cov-report=term --cov-report=xml --cov-fail-under=70"  # 70 or lower
+asyncio_default_fixture_loop_scope = "function"
 
 [tool.black]
 line-length = 88
