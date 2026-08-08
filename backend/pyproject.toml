@@ -42,7 +42,6 @@ dev = [
     "types-redis==4.6.0",
     "types-python-jose==3.3.0",
     "types-passlib==1.7.7",
-
     "ruff>=0.10",
     "mypy>=1.15",
 ]
@@ -93,6 +92,7 @@ testpaths = ["tests"]
 python_files = ["test_*.py"]
 python_classes = ["Test*"]
 python_functions = ["test_*"]
+addopts = "--cov=app --cov-report=term --cov-report=xml --cov-fail-under=80" # 80 percent or lower
 
 [tool.black]
 line-length = 88
