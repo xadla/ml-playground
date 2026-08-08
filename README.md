@@ -7,7 +7,6 @@
 <h4 align="center">Draw data. Tune models. See results. <em>No code, no setup.</em></h4>
 
 <p align="center">
-  <a href="https://ml-playground-demo.vercel.app">Live Demo</a> •
   <a href="#key-features">Features</a> •
   <a href="#tech-stack">Tech Stack</a> •
   <a href="#quick-start">Quick Start</a> •
@@ -77,7 +76,6 @@ Beginners hit walls with setup and code‑first approaches.
 | **Containerization** | Docker, docker‑compose |
 | **CI/CD** | GitHub Actions |
 | **Code Quality** | Ruff (lint+format), MyPy (type checking), pre‑commit, ESLint, Prettier |
-| **Cloud** | Railway / Render / AWS EC2 |
 
 ---
 
