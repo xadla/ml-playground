@@ -83,7 +83,7 @@ Beginners hit walls with setup and code‑first approaches.
 
 ```bash
 # 1. Clone the repo
-git clone https://github.com/your-username/ml-playground.git
+git clone https://github.com/xadla/ml-playground.git
 cd ml-playground
 
 # 2. Set up environment variables
